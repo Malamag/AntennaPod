@@ -14,7 +14,7 @@ on:
     branches: [ develop ]
 
 jobs:
-  build:
+  unit-test:
 
     runs-on: ubuntu-latest
 
@@ -28,14 +28,5 @@ jobs:
     - name: Create temporary release keystore
       run: keytool -noprompt -genkey -v -keystore "app/keystore" -alias alias -storepass password -keypass password -keyalg RSA -validity 10 -dname "CN=antennapod.org, OU=dummy, O=dummy, L=dummy, S=dummy, C=US"
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-      with:
-        arguments: build
+      run: ./gradlew test 
         
-  wrapper-validation:
-    name: "Gradle Wrapper Validation"
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: gradle/wrapper-validation-action@v1
