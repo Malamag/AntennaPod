@@ -54,21 +54,21 @@ public class ItunesAdapter extends ArrayAdapter<PodcastSearchResult> {
         PodcastViewHolder viewHolder;
 
         //Resulting view
-        View view;
+        View view = convertView;
 
         //Handle view holder stuff
         if(convertView == null) {
-            view = ((MainActivity) context).getLayoutInflater()
+            /*view = ((MainActivity) context).getLayoutInflater()
                     .inflate(R.layout.itunes_podcast_listitem, parent, false);
             viewHolder = new PodcastViewHolder(view);
-            view.setTag(viewHolder);
+            view.setTag(viewHolder);*/
         } else {
             view = convertView;
             viewHolder = (PodcastViewHolder) view.getTag();
         }
 
         // Set the title
-        viewHolder.titleView.setText(podcast.title);
+        /*viewHolder.titleView.setText(podcast.title);
         if (podcast.author != null && ! podcast.author.trim().isEmpty()) {
             viewHolder.authorView.setText(podcast.author);
             viewHolder.authorView.setVisibility(View.VISIBLE);
@@ -77,10 +77,10 @@ public class ItunesAdapter extends ArrayAdapter<PodcastSearchResult> {
             viewHolder.authorView.setVisibility(View.VISIBLE);
         } else {
             viewHolder.authorView.setVisibility(View.GONE);
-        }
+        }*/
 
         //Update the empty imageView with the image from the feed
-        Glide.with(context)
+        /*Glide.with(context)
                 .load(podcast.imageUrl)
                 .apply(new RequestOptions()
                     .placeholder(R.color.light_gray)
@@ -88,7 +88,7 @@ public class ItunesAdapter extends ArrayAdapter<PodcastSearchResult> {
                     .transforms(new FitCenter(),
                             new RoundedCorners((int) (4 * context.getResources().getDisplayMetrics().density)))
                     .dontAnimate())
-                .into(viewHolder.coverView);
+                into(viewHolder.coverView);*/
 
         //Feed the grid view
         return view;

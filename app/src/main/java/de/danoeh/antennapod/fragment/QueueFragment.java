@@ -146,7 +146,7 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
             case SET_QUEUE:
             case SORTED: //Deliberate fall-through
                 queue = event.items;
-                recyclerAdapter.notifyDataSetChanged();
+                //recyclerAdapter.notifyDataSetChanged();
                 break;
             case REMOVED:
             case IRREVERSIBLE_REMOVED:
@@ -156,7 +156,7 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
                 break;
             case CLEARED:
                 queue.clear();
-                recyclerAdapter.notifyDataSetChanged();
+                //recyclerAdapter.notifyDataSetChanged();
                 break;
             case MOVED:
                 return;
@@ -344,7 +344,7 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
             refreshToolbarState();
             return true;
         } else if (itemId == R.id.action_search) {
-            ((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance());
+            //((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance());
             return true;
         }
         return false;
@@ -385,9 +385,9 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
         }
         if (queue.size() == 0) {
             if (locked) {
-                ((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.queue_locked, Snackbar.LENGTH_SHORT);
+                //((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.queue_locked, Snackbar.LENGTH_SHORT);
             } else {
-                ((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.queue_unlocked, Snackbar.LENGTH_SHORT);
+                //((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.queue_unlocked, Snackbar.LENGTH_SHORT);
             }
         }
     }
@@ -448,7 +448,7 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
         if (savedInstanceState != null) {
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
-        ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
+        //((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
         toolbar.inflateMenu(R.menu.queue);
         refreshToolbarState();
 
@@ -458,7 +458,7 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
         if (animator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
         }
-        recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
+        //recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
         registerForContextMenu(recyclerView);
 
         SwipeRefreshLayout swipeRefreshLayout = root.findViewById(R.id.swipeRefresh);
@@ -497,15 +497,15 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
             @Override
             public void onToggleChanged(boolean open) {
                 if (open && recyclerAdapter.getSelectedCount() == 0) {
-                    ((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.no_items_selected,
-                            Snackbar.LENGTH_SHORT);
+                    //((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.no_items_selected,
+                            //Snackbar.LENGTH_SHORT);
                     speedDialView.close();
                 }
             }
         });
         speedDialView.setOnActionSelectedListener(actionItem -> {
-            new EpisodeMultiSelectActionHandler(((MainActivity) getActivity()), recyclerAdapter.getSelectedItems())
-                    .handleAction(actionItem.getId());
+            //new EpisodeMultiSelectActionHandler(((MainActivity) getActivity()), recyclerAdapter.getSelectedItems())
+                    //.handleAction(actionItem.getId());
             recyclerAdapter.endSelectMode();
             return true;
         });
@@ -521,8 +521,8 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
     private void onFragmentLoaded(final boolean restoreScrollPosition) {
         if (queue != null) {
             if (recyclerAdapter == null) {
-                MainActivity activity = (MainActivity) getActivity();
-                recyclerAdapter = new QueueRecyclerAdapter(activity, swipeActions);
+                //MainActivity activity = (MainActivity) getActivity();
+                //recyclerAdapter = new QueueRecyclerAdapter(activity, swipeActions);
                 recyclerAdapter.setOnSelectModeListener(this);
                 recyclerView.setAdapter(recyclerAdapter);
                 emptyView.updateAdapter(recyclerAdapter);
@@ -583,7 +583,7 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
                     queue = items;
                     onFragmentLoaded(restoreScrollPosition);
                     if (recyclerAdapter != null) {
-                        recyclerAdapter.notifyDataSetChanged();
+                        //recyclerAdapter.notifyDataSetChanged();
                     }
                 }, error -> Log.e(TAG, Log.getStackTraceString(error)));
     }

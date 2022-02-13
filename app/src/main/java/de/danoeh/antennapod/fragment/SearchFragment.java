@@ -128,15 +128,15 @@ public class SearchFragment extends Fragment {
         progressBar = layout.findViewById(R.id.progressBar);
 
         recyclerView = layout.findViewById(R.id.recyclerView);
-        recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
-        adapter = new EpisodeItemListAdapter((MainActivity) getActivity());
+        //recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
+        //adapter = new EpisodeItemListAdapter((MainActivity) getActivity());
         recyclerView.setAdapter(adapter);
 
         RecyclerView recyclerViewFeeds = layout.findViewById(R.id.recyclerViewFeeds);
         LinearLayoutManager layoutManagerFeeds = new LinearLayoutManager(getActivity());
         layoutManagerFeeds.setOrientation(RecyclerView.HORIZONTAL);
         recyclerViewFeeds.setLayoutManager(layoutManagerFeeds);
-        adapterFeeds = new FeedSearchResultAdapter((MainActivity) getActivity());
+        //adapterFeeds = new FeedSearchResultAdapter((MainActivity) getActivity());
         recyclerViewFeeds.setAdapter(adapterFeeds);
 
         emptyViewHandler = new EmptyViewHandler(getContext());

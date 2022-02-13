@@ -32,7 +32,7 @@ import de.danoeh.antennapod.event.playback.PlaybackServiceEvent;
 import de.danoeh.antennapod.event.PlayerErrorEvent;
 import de.danoeh.antennapod.event.playback.SleepTimerUpdatedEvent;
 import de.danoeh.antennapod.event.playback.SpeedChangedEvent;
-import de.danoeh.antennapod.playback.cast.CastEnabledActivity;
+//import de.danoeh.antennapod.playback.cast.CastEnabledActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -112,8 +112,8 @@ public class AudioPlayerFragment extends Fragment implements
         root.setOnTouchListener((v, event) -> true); // Avoid clicks going through player to fragments below
         toolbar = root.findViewById(R.id.toolbar);
         toolbar.setTitle("");
-        toolbar.setNavigationOnClickListener(v ->
-                ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED));
+        //toolbar.setNavigationOnClickListener(v ->
+          //      ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED));
         toolbar.setOnMenuItemClickListener(this);
 
         ExternalPlayerFragment externalPlayerFragment = new ExternalPlayerFragment();
@@ -151,7 +151,7 @@ public class AudioPlayerFragment extends Fragment implements
                 pager.post(() -> {
                     if (getActivity() != null) {
                         // By the time this is posted, the activity might be closed again.
-                        ((MainActivity) getActivity()).getBottomSheet().updateScrollingChild();
+                        //((MainActivity) getActivity()).getBottomSheet().updateScrollingChild();
                     }
                 });
             }
@@ -229,7 +229,7 @@ public class AudioPlayerFragment extends Fragment implements
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackServiceChanged(PlaybackServiceEvent event) {
         if (event.action == PlaybackServiceEvent.Action.SERVICE_SHUT_DOWN) {
-            ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
+           // ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
         }
     }
 
@@ -293,7 +293,7 @@ public class AudioPlayerFragment extends Fragment implements
 
             @Override
             public void onPlaybackEnd() {
-                ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
+                //((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         };
     }
@@ -400,13 +400,13 @@ public class AudioPlayerFragment extends Fragment implements
         final AlertDialog.Builder errorDialog = new AlertDialog.Builder(getContext());
         errorDialog.setTitle(R.string.error_label);
         errorDialog.setMessage(event.getMessage());
-        errorDialog.setPositiveButton(android.R.string.ok, (dialog, which) ->
-                ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED));
+       //errorDialog.setPositiveButton(android.R.string.ok, (dialog, which) ->
+                //((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED));
         if (!UserPreferences.useExoplayer()) {
             errorDialog.setNeutralButton(R.string.media_player_switch_to_exoplayer, (dialog, which) -> {
                 UserPreferences.enableExoplayer();
-                ((MainActivity) getActivity()).showSnackbarAbovePlayer(
-                        R.string.media_player_switched_to_exoplayer, Snackbar.LENGTH_LONG);
+                //((MainActivity) getActivity()).showSnackbarAbovePlayer(
+                  //      R.string.media_player_switched_to_exoplayer, Snackbar.LENGTH_LONG);
             });
         }
         errorDialog.create().show();
@@ -489,7 +489,7 @@ public class AudioPlayerFragment extends Fragment implements
         toolbar.getMenu().findItem(R.id.set_sleeptimer_item).setVisible(!controller.sleepTimerActive());
         toolbar.getMenu().findItem(R.id.disable_sleeptimer_item).setVisible(controller.sleepTimerActive());
 
-        ((CastEnabledActivity) getActivity()).requestCastButton(toolbar.getMenu());
+        //((CastEnabledActivity) getActivity()).requestCastButton(toolbar.getMenu());
     }
 
     @Override

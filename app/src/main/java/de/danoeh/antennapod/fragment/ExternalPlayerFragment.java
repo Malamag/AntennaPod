@@ -25,7 +25,7 @@ import de.danoeh.antennapod.core.glide.ApGlideSettings;
 import de.danoeh.antennapod.core.service.playback.PlaybackService;
 import de.danoeh.antennapod.model.playback.Playable;
 import de.danoeh.antennapod.core.util.playback.PlaybackController;
-import de.danoeh.antennapod.playback.base.PlayerStatus;
+//import de.danoeh.antennapod.playback.base.PlayerStatus;
 import de.danoeh.antennapod.view.PlayButton;
 import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -68,7 +68,7 @@ public class ExternalPlayerFragment extends Fragment {
 
             if (controller != null && controller.getMedia() != null) {
                 if (controller.getMedia().getMediaType() == MediaType.AUDIO) {
-                    ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_EXPANDED);
+                    //((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_EXPANDED);
                 } else {
                     Intent intent = PlaybackService.getPlayerActivityIntent(getActivity(), controller.getMedia());
                     startActivity(intent);
@@ -86,7 +86,7 @@ public class ExternalPlayerFragment extends Fragment {
                 return;
             }
             if (controller.getMedia() != null && controller.getMedia().getMediaType() == MediaType.VIDEO
-                    && controller.getStatus() != PlayerStatus.PLAYING) {
+            ){//&& controller.getStatus() != PlayerStatus.PLAYING) {
                 controller.playPause();
                 getContext().startActivity(PlaybackService
                         .getPlayerActivityIntent(getContext(), controller.getMedia()));
@@ -111,7 +111,7 @@ public class ExternalPlayerFragment extends Fragment {
 
             @Override
             public void onPlaybackEnd() {
-                ((MainActivity) getActivity()).setPlayerVisible(false);
+            //((MainActivity) getActivity()).setPlayerVisible(false);
             }
         };
     }
@@ -150,7 +150,7 @@ public class ExternalPlayerFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlaybackServiceChanged(PlaybackServiceEvent event) {
         if (event.action == PlaybackServiceEvent.Action.SERVICE_SHUT_DOWN) {
-            ((MainActivity) getActivity()).setPlayerVisible(false);
+            //((MainActivity) getActivity()).setPlayerVisible(false);
         }
     }
 
@@ -181,19 +181,19 @@ public class ExternalPlayerFragment extends Fragment {
         if (disposable != null) {
             disposable.dispose();
         }
-        disposable = Maybe.fromCallable(() -> controller.getMedia())
+        /*disposable = Maybe.fromCallable(() -> controller.getMedia())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::updateUi,
                         error -> Log.e(TAG, Log.getStackTraceString(error)),
-                        () -> ((MainActivity) getActivity()).setPlayerVisible(false));
+                        () -> (MainActivity) getActivity()).setPlayerVisible(false));*/
     }
 
     private void updateUi(Playable media) {
         if (media == null) {
             return;
         }
-        ((MainActivity) getActivity()).setPlayerVisible(true);
+        //((MainActivity) getActivity()).setPlayerVisible(true);
         txtvTitle.setText(media.getEpisodeTitle());
         feedName.setText(media.getFeedTitle());
         onPositionObserverUpdate(new PlaybackPositionEvent(media.getPosition(), media.getDuration()));
@@ -214,11 +214,11 @@ public class ExternalPlayerFragment extends Fragment {
                 .into(imgvCover);
 
         if (controller != null && controller.isPlayingVideoLocally()) {
-            ((MainActivity) getActivity()).getBottomSheet().setLocked(true);
-            ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
+            //((MainActivity) getActivity()).getBottomSheet().setLocked(true);
+            //((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else {
             butPlay.setVisibility(View.VISIBLE);
-            ((MainActivity) getActivity()).getBottomSheet().setLocked(false);
+            //((MainActivity) getActivity()).getBottomSheet().setLocked(false);
         }
     }
 }

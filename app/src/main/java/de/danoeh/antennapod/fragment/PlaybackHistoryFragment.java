@@ -70,13 +70,13 @@ public class PlaybackHistoryFragment extends Fragment implements Toolbar.OnMenuI
         if (savedInstanceState != null) {
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
-        ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
+        //((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
         toolbar.inflateMenu(R.menu.playback_history);
         refreshToolbarState();
 
         recyclerView = root.findViewById(R.id.recyclerView);
-        recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
-        adapter = new PlaybackHistoryListAdapter((MainActivity) getActivity());
+        //recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
+        //adapter = new PlaybackHistoryListAdapter((MainActivity) getActivity());
         recyclerView.setAdapter(adapter);
         progressBar = root.findViewById(R.id.progLoading);
 
@@ -217,7 +217,7 @@ public class PlaybackHistoryFragment extends Fragment implements Toolbar.OnMenuI
     }
 
     private void onFragmentLoaded() {
-        adapter.notifyDataSetChanged();
+        //adapter.notifyDataSetChanged();
         refreshToolbarState();
     }
 

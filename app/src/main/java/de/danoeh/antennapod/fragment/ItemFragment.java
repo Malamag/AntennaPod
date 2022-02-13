@@ -150,8 +150,8 @@ public class ItemFragment extends Fragment {
                     && Objects.equals(item.getMedia().getIdentifier(), controller.getMedia().getIdentifier())) {
                 controller.seekTo(time);
             } else {
-                ((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.play_this_to_seek_position,
-                        Snackbar.LENGTH_LONG);
+                //((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.play_this_to_seek_position,
+                        //Snackbar.LENGTH_LONG);
             }
         });
         registerForContextMenu(webvDescription);
@@ -212,8 +212,8 @@ public class ItemFragment extends Fragment {
             UserPreferences.setStreamOverDownload(offerStreaming);
             // Update all visible lists to reflect new streaming action button
             EventBus.getDefault().post(new UnreadItemsUpdateEvent());
-            ((MainActivity) getActivity()).showSnackbarAbovePlayer(
-                    R.string.on_demand_config_setting_changed, Snackbar.LENGTH_SHORT);
+            //((MainActivity) getActivity()).showSnackbarAbovePlayer(
+                    //R.string.on_demand_config_setting_changed, Snackbar.LENGTH_SHORT);
             balloon.dismiss();
         });
         negativeButton.setOnClickListener(v1 -> {
@@ -363,7 +363,7 @@ public class ItemFragment extends Fragment {
 
     private void openPodcast() {
         Fragment fragment = FeedItemlistFragment.newInstance(item.getFeedId());
-        ((MainActivity) getActivity()).loadChildFragment(fragment);
+        //((MainActivity) getActivity()).loadChildFragment(fragment);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

@@ -73,8 +73,8 @@ public class GpodnetMainFragment extends Fragment {
                 Activity activity = getActivity();
                 if (activity != null) {
                     searchItem.collapseActionView();
-                    ((MainActivity) activity).loadChildFragment(
-                            OnlineSearchFragment.newInstance(GpodnetPodcastSearcher.class, query));
+                    //((MainActivity) activity).loadChildFragment(
+                            //OnlineSearchFragment.newInstance(GpodnetPodcastSearcher.class, query));
                 }
                 return true;
             }

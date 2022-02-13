@@ -70,14 +70,14 @@ public class AddFeedFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
         viewBinding = AddfeedBinding.inflate(getLayoutInflater());
-        activity = (MainActivity) getActivity();
+        activity = new MainActivity();// (MainActivity) getActivity();
 
         Toolbar toolbar = viewBinding.toolbar;
         displayUpArrow = getParentFragmentManager().getBackStackEntryCount() != 0;
         if (savedInstanceState != null) {
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
-        ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
+        //((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
 
         viewBinding.searchItunesButton.setOnClickListener(v
                 -> activity.loadChildFragment(OnlineSearchFragment.newInstance(ItunesPodcastSearcher.class)));
@@ -101,8 +101,8 @@ public class AddFeedFragment extends Fragment {
                 chooseOpmlImportPathLauncher.launch("*/*");
             } catch (ActivityNotFoundException e) {
                 e.printStackTrace();
-                ((MainActivity) getActivity())
-                        .showSnackbarAbovePlayer(R.string.unable_to_start_system_file_manager, Snackbar.LENGTH_LONG);
+                //((MainActivity) getActivity())
+                  //      .showSnackbarAbovePlayer(R.string.unable_to_start_system_file_manager, Snackbar.LENGTH_LONG);
             }
         });
 
@@ -114,8 +114,8 @@ public class AddFeedFragment extends Fragment {
                 addLocalFolderLauncher.launch(null);
             } catch (ActivityNotFoundException e) {
                 e.printStackTrace();
-                ((MainActivity) getActivity())
-                        .showSnackbarAbovePlayer(R.string.unable_to_start_system_file_manager, Snackbar.LENGTH_LONG);
+                //((MainActivity) getActivity())
+                        //.showSnackbarAbovePlayer(R.string.unable_to_start_system_file_manager, Snackbar.LENGTH_LONG);
             }
         });
         if (Build.VERSION.SDK_INT < 21) {
@@ -199,11 +199,11 @@ public class AddFeedFragment extends Fragment {
                 .subscribe(
                         feed -> {
                             Fragment fragment = FeedItemlistFragment.newInstance(feed.getId());
-                            ((MainActivity) getActivity()).loadChildFragment(fragment);
+                            //((MainActivity) getActivity()).loadChildFragment(fragment);
                         }, error -> {
                             Log.e(TAG, Log.getStackTraceString(error));
-                            ((MainActivity) getActivity())
-                                    .showSnackbarAbovePlayer(error.getLocalizedMessage(), Snackbar.LENGTH_LONG);
+                            //((MainActivity) getActivity())
+                                    //.showSnackbarAbovePlayer(error.getLocalizedMessage(), Snackbar.LENGTH_LONG);
                         });
     }
 

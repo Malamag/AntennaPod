@@ -413,9 +413,9 @@ public class CoverFragment extends Fragment {
         if (clipboardManager != null) {
             clipboardManager.setPrimaryClip(ClipData.newPlainText("AntennaPod", text));
         }
-        ((MainActivity) requireActivity()).showSnackbarAbovePlayer(
+        /*((MainActivity) requireActivity()).showSnackbarAbovePlayer(
                 getResources().getString(R.string.copied_to_clipboard),
-                Snackbar.LENGTH_SHORT);
+                Snackbar.LENGTH_SHORT);*/
         return true;
     }
 }

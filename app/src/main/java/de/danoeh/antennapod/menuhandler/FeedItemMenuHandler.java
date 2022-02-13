@@ -247,13 +247,13 @@ public class FeedItemMenuHandler {
         int duration = Snackbar.LENGTH_LONG;
 
         if (showSnackbar) {
-            ((MainActivity) fragment.getActivity()).showSnackbarAbovePlayer(
+            /*((MainActivity) fragment.getActivity()).showSnackbarAbovePlayer(
                     playStateStringRes, duration)
                     .setAction(fragment.getString(R.string.undo), v -> {
                         DBWriter.markItemPlayed(item.getPlayState(), item.getId());
                         // don't forget to cancel the thing that's going to remove the media
                         h.removeCallbacks(r);
-                    });
+                    });*/
         }
 
         h.postDelayed(r, (int) Math.ceil(duration * 1.05f));

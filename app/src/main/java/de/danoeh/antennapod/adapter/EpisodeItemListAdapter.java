@@ -40,14 +40,15 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
     int longPressedPosition = 0; // used to init actionMode
 
     public EpisodeItemListAdapter(MainActivity mainActivity) {
-        super(mainActivity);
+        //super(mainActivity);
+        super(new Activity());
         this.mainActivityRef = new WeakReference<>(mainActivity);
         setHasStableIds(true);
     }
 
     public void updateItems(List<FeedItem> items) {
         episodes = items;
-        notifyDataSetChanged();
+        //notifyDataSetChanged();
     }
 
     @Override
@@ -166,13 +167,16 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
         return episodes.get(index);
     }
 
-    protected Activity getActivity() {
+    /*protected Activity getActivity() {
         return mainActivityRef.get();
+    }*/
+    protected void getActivity() {
+        return;
     }
 
     @Override
     public void onCreateContextMenu(final ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        MenuInflater inflater = mainActivityRef.get().getMenuInflater();
+        /*MenuInflater inflater = mainActivityRef.get().getMenuInflater();
         if (inActionMode()) {
             inflater.inflate(R.menu.multi_select_context_popup, menu);
         } else {
@@ -182,7 +186,7 @@ public class EpisodeItemListAdapter extends SelectableAdapter<EpisodeItemViewHol
             inflater.inflate(R.menu.feeditemlist_context, menu);
             menu.setHeaderTitle(longPressedItem.getTitle());
             FeedItemMenuHandler.onPrepareMenu(menu, longPressedItem, R.id.skip_episode_item);
-        }
+        }*/
     }
 
     public boolean onContextItemSelected(MenuItem item) {

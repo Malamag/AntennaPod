@@ -81,7 +81,7 @@ public class CoverLoader {
         CoverTarget coverTarget = new CoverTarget(txtvPlaceholder, imgvCover, textAndImageCombined);
 
         if (resource != 0) {
-            Glide.with(activity).clear(coverTarget);
+            //Glide.with(activity).clear(coverTarget);
             imgvCover.setImageResource(resource);
             CoverTarget.setPlaceholderVisibility(txtvPlaceholder, textAndImageCombined, null);
             return;
@@ -92,7 +92,7 @@ public class CoverLoader {
                 .fitCenter()
                 .dontAnimate();
 
-        RequestBuilder<PaletteBitmap> builder = Glide.with(activity)
+        /*RequestBuilder<PaletteBitmap> builder = Glide.with(activity)
                 .as(PaletteBitmap.class)
                 .load(uri)
                 .apply(options);
@@ -104,7 +104,7 @@ public class CoverLoader {
                     .apply(options));
         }
 
-        builder.into(coverTarget);
+        builder.into(coverTarget);*/
     }
 
     static class CoverTarget extends CustomViewTarget<ImageView, PaletteBitmap> {

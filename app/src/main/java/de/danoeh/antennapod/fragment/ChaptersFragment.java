@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import de.danoeh.antennapod.playback.base.PlayerStatus;
+//import de.danoeh.antennapod.playback.base.PlayerStatus;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -66,9 +66,9 @@ public class ChaptersFragment extends AppCompatDialogFragment {
                 layoutManager.getOrientation()));
 
         adapter = new ChaptersListAdapter(getActivity(), pos -> {
-            if (controller.getStatus() != PlayerStatus.PLAYING) {
+            /*if (controller.getStatus() != PlayerStatus.PLAYING) {
                 controller.playPause();
-            }
+            }*/
             Chapter chapter = adapter.getItem(pos);
             controller.seekTo((int) chapter.getStart());
             updateChapterSelection(pos);
@@ -95,7 +95,7 @@ public class ChaptersFragment extends AppCompatDialogFragment {
 
             @Override
             public void onPositionObserverUpdate() {
-                adapter.notifyDataSetChanged();
+                //adapter.notifyDataSetChanged();
             }
         };
         controller.init();

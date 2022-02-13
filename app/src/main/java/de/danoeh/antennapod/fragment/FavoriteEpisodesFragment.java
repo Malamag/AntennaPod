@@ -80,8 +80,8 @@ public class FavoriteEpisodesFragment extends EpisodesListFragment {
                 if (item != null) {
                     DBWriter.removeFavoriteItem(item);
 
-                    ((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.removed_item, Snackbar.LENGTH_LONG)
-                        .setAction(getString(R.string.undo), v -> DBWriter.addFavoriteItem(item));
+                    //((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.removed_item, Snackbar.LENGTH_LONG)
+                        //.setAction(getString(R.string.undo), v -> DBWriter.addFavoriteItem(item));
                 }
             }
         };

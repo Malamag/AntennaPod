@@ -55,8 +55,8 @@ public class QuickFeedDiscoveryFragment extends Fragment implements AdapterView.
         super.onCreateView(inflater, container, savedInstanceState);
         View root = inflater.inflate(R.layout.quick_feed_discovery, container, false);
         View discoverMore = root.findViewById(R.id.discover_more);
-        discoverMore.setOnClickListener(v ->
-                ((MainActivity) getActivity()).loadChildFragment(new DiscoveryFragment()));
+        //discoverMore.setOnClickListener(v ->
+                //((MainActivity) getActivity()).loadChildFragment(new DiscoveryFragment()));
 
         discoverGridLayout = root.findViewById(R.id.discover_grid);
         progressBar = root.findViewById(R.id.discover_progress_bar);
@@ -66,7 +66,7 @@ public class QuickFeedDiscoveryFragment extends Fragment implements AdapterView.
         errorRetry.setOnClickListener((listener) -> loadToplist());
         poweredByTextView = root.findViewById(R.id.discover_powered_by_itunes);
 
-        adapter = new FeedDiscoverAdapter((MainActivity) getActivity());
+        //adapter = new FeedDiscoverAdapter((MainActivity) getActivity());
         discoverGridLayout.setAdapter(adapter);
         discoverGridLayout.setOnItemClickListener(this);
 
@@ -119,8 +119,8 @@ public class QuickFeedDiscoveryFragment extends Fragment implements AdapterView.
         String countryCode = prefs.getString(ItunesTopListLoader.PREF_KEY_COUNTRY_CODE,
                 Locale.getDefault().getCountry());
         if (countryCode.equals(ItunesTopListLoader.DISCOVER_HIDE_FAKE_COUNTRY_CODE)) {
-            errorTextView.setText(String.format(getResources().getString(R.string.discover_is_hidden),
-                    getResources().getString(R.string.discover_hide)));
+            //errorTextView.setText(String.format(getResources().getString(R.string.discover_is_hidden),
+                   // getResources().getString(R.string.discover_hide)));
             errorView.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
             discoverGridLayout.setVisibility(View.INVISIBLE);
