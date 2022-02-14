@@ -59,31 +59,7 @@ public final class ChapterImageModelLoader implements ModelLoader<EmbeddedChapte
         public void loadData(@NonNull Priority priority, @NonNull DataCallback<? super ByteBuffer> callback) {
 
             BufferedInputStream stream = null;
-            try {
-                if (image.getMedia().localFileAvailable()) {
-                    File localFile = new File(image.getMedia().getLocalMediaUrl());
-                    stream = new BufferedInputStream(new FileInputStream(localFile));
-                    IOUtils.skip(stream, image.getPosition());
-                    byte[] imageContent = new byte[image.getLength()];
-                    IOUtils.read(stream, imageContent, 0, image.getLength());
-                    callback.onDataReady(ByteBuffer.wrap(imageContent));
-                } else {
-                    Request.Builder httpReq = new Request.Builder();
-                    // Skipping would download the whole file
-                    httpReq.header("Range", "bytes=" + image.getPosition()
-                            + "-" + (image.getPosition() + image.getLength()));
-                    httpReq.url(image.getMedia().getStreamUrl());
-                    Response response = AntennapodHttpClient.getHttpClient().newCall(httpReq.build()).execute();
-                    if (!response.isSuccessful() || response.body() == null) {
-                        throw new IOException("Invalid response: " + response.code() + " " + response.message());
-                    }
-                    callback.onDataReady(ByteBuffer.wrap(response.body().bytes()));
-                }
-            } catch (IOException e) {
-                callback.onLoadFailed(e);
-            } finally {
-                IOUtils.closeQuietly(stream);
-            }
+
         }
 
         @Override

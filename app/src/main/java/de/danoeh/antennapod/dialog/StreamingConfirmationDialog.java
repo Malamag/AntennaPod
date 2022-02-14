@@ -4,16 +4,15 @@ import android.content.Context;
 import androidx.appcompat.app.AlertDialog;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.core.preferences.UserPreferences;
-import de.danoeh.antennapod.model.playback.Playable;
-import de.danoeh.antennapod.core.util.playback.PlaybackServiceStarter;
+
 
 public class StreamingConfirmationDialog {
     private final Context context;
-    private final Playable playable;
 
-    public StreamingConfirmationDialog(Context context, Playable playable) {
+
+    public StreamingConfirmationDialog(Context context) {
         this.context = context;
-        this.playable = playable;
+
     }
 
     public void show() {
@@ -30,11 +29,6 @@ public class StreamingConfirmationDialog {
     }
 
     private void stream() {
-        new PlaybackServiceStarter(context, playable)
-                .callEvenIfRunning(true)
-                .startWhenPrepared(true)
-                .shouldStream(true)
-                .shouldStreamThisTime(true)
-                .start();
+
     }
 }

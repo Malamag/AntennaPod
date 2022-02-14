@@ -55,8 +55,6 @@ import de.danoeh.antennapod.core.util.Converter;
 import de.danoeh.antennapod.core.util.DateFormatter;
 import de.danoeh.antennapod.core.util.FeedItemUtil;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
-import de.danoeh.antennapod.core.util.playback.PlaybackController;
-import de.danoeh.antennapod.core.util.playback.Timeline;
 import de.danoeh.antennapod.view.ShownotesWebView;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -119,7 +117,7 @@ public class ItemFragment extends Fragment {
     private View noMediaLabel;
 
     private Disposable disposable;
-    private PlaybackController controller;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -146,13 +144,7 @@ public class ItemFragment extends Fragment {
         txtvTitle.setEllipsize(TextUtils.TruncateAt.END);
         webvDescription = layout.findViewById(R.id.webvDescription);
         webvDescription.setTimecodeSelectedListener(time -> {
-            if (controller != null && item.getMedia() != null && controller.getMedia() != null
-                    && Objects.equals(item.getMedia().getIdentifier(), controller.getMedia().getIdentifier())) {
-                controller.seekTo(time);
-            } else {
-                //((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.play_this_to_seek_position,
-                        //Snackbar.LENGTH_LONG);
-            }
+
         });
         registerForContextMenu(webvDescription);
 
@@ -227,13 +219,7 @@ public class ItemFragment extends Fragment {
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-        controller = new PlaybackController(getActivity()) {
-            @Override
-            public void loadMediaInfo() {
-                // Do nothing
-            }
-        };
-        controller.init();
+
         load();
     }
 
@@ -249,8 +235,7 @@ public class ItemFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        EventBus.getDefault().unregister(this);
-        controller.release();
+
     }
 
     @Override
@@ -428,8 +413,7 @@ public class ItemFragment extends Fragment {
         if (feedItem != null && context != null) {
             int duration = feedItem.getMedia() != null ? feedItem.getMedia().getDuration() : Integer.MAX_VALUE;
             DBReader.loadDescriptionOfFeedItem(feedItem);
-            Timeline t = new Timeline(context, feedItem.getDescription(), duration);
-            webviewData = t.processShownotes();
+
         }
         return feedItem;
     }

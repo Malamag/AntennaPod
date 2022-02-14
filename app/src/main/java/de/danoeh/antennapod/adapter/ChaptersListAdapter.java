@@ -21,11 +21,11 @@ import de.danoeh.antennapod.core.util.Converter;
 import de.danoeh.antennapod.model.feed.EmbeddedChapterImage;
 import de.danoeh.antennapod.core.util.IntentUtils;
 import de.danoeh.antennapod.ui.common.ThemeUtils;
-import de.danoeh.antennapod.model.playback.Playable;
+
 import de.danoeh.antennapod.ui.common.CircularProgressBar;
 
 public class ChaptersListAdapter extends RecyclerView.Adapter<ChaptersListAdapter.ChapterHolder> {
-    private Playable media;
+
     private final Callback callback;
     private final Context context;
     private int currentChapterIndex = -1;
@@ -37,84 +37,14 @@ public class ChaptersListAdapter extends RecyclerView.Adapter<ChaptersListAdapte
         this.context = context;
     }
 
-    public void setMedia(Playable media) {
-        this.media = media;
-        hasImages = false;
-        if (media.getChapters() != null) {
-            for (Chapter chapter : media.getChapters()) {
-                if (!TextUtils.isEmpty(chapter.getImageUrl())) {
-                    hasImages = true;
-                }
-            }
-        }
-        notifyDataSetChanged();
+    public void setMedia() {
+
     }
 
     @Override
     public void onBindViewHolder(@NonNull ChapterHolder holder, int position) {
-        Chapter sc = getItem(position);
-        if (sc == null) {
-            holder.title.setText("Error");
-            return;
-        }
-        holder.title.setText(sc.getTitle());
-        holder.start.setText(Converter.getDurationStringLong((int) sc
-                .getStart()));
 
-        long duration;
-        if (position + 1 < media.getChapters().size()) {
-            duration = media.getChapters().get(position + 1).getStart() - sc.getStart();
-        } else {
-            duration = media.getDuration() - sc.getStart();
-        }
-        holder.duration.setText(context.getString(R.string.chapter_duration,
-                Converter.getDurationStringLocalized(context, (int) duration)));
 
-        if (TextUtils.isEmpty(sc.getLink())) {
-            holder.link.setVisibility(View.GONE);
-        } else {
-            holder.link.setVisibility(View.VISIBLE);
-            holder.link.setText(sc.getLink());
-            holder.link.setOnClickListener(v -> IntentUtils.openInBrowser(context, sc.getLink()));
-        }
-        holder.secondaryActionIcon.setImageResource(R.drawable.ic_play_48dp);
-        holder.secondaryActionButton.setContentDescription(context.getString(R.string.play_chapter));
-        holder.secondaryActionButton.setOnClickListener(v -> {
-            if (callback != null) {
-                callback.onPlayChapterButtonClicked(position);
-            }
-        });
-
-        if (position == currentChapterIndex) {
-            int playingBackGroundColor = ThemeUtils.getColorFromAttr(context, R.attr.currently_playing_background);
-            holder.itemView.setBackgroundColor(playingBackGroundColor);
-            float progress = ((float) (currentChapterPosition - sc.getStart())) / duration;
-            progress = Math.max(progress, CircularProgressBar.MINIMUM_PERCENTAGE);
-            progress = Math.min(progress, CircularProgressBar.MAXIMUM_PERCENTAGE);
-            holder.progressBar.setPercentage(progress, position);
-            holder.secondaryActionIcon.setImageResource(R.drawable.ic_replay);
-        } else {
-            holder.itemView.setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent));
-            holder.progressBar.setPercentage(0, null);
-        }
-
-        if (hasImages) {
-            holder.image.setVisibility(View.VISIBLE);
-            if (TextUtils.isEmpty(sc.getImageUrl())) {
-                Glide.with(context).clear(holder.image);
-            } else {
-                Glide.with(context)
-                        .load(EmbeddedChapterImage.getModelFor(media, position))
-                        .apply(new RequestOptions()
-                                .diskCacheStrategy(ApGlideSettings.AP_DISK_CACHE_STRATEGY)
-                                .dontAnimate()
-                                .transforms(new FitCenter(), new RoundedCorners((int)
-                                        (4 * context.getResources().getDisplayMetrics().density))))
-                        .into(holder.image);
-            }
-        } else {
-            holder.image.setVisibility(View.GONE);
-        }
     }
 
     @NonNull
@@ -126,10 +56,7 @@ public class ChaptersListAdapter extends RecyclerView.Adapter<ChaptersListAdapte
 
     @Override
     public int getItemCount() {
-        if (media == null || media.getChapters() == null) {
-            return 0;
-        }
-        return media.getChapters().size();
+       return  0;
     }
 
     static class ChapterHolder extends RecyclerView.ViewHolder {
@@ -157,8 +84,8 @@ public class ChaptersListAdapter extends RecyclerView.Adapter<ChaptersListAdapte
 
     public void notifyChapterChanged(int newChapterIndex) {
         currentChapterIndex = newChapterIndex;
-        currentChapterPosition = getItem(newChapterIndex).getStart();
-        notifyDataSetChanged();
+
+
     }
 
     public void notifyTimeChanged(long timeMs) {
@@ -168,9 +95,6 @@ public class ChaptersListAdapter extends RecyclerView.Adapter<ChaptersListAdapte
         notifyItemChanged(currentChapterIndex, "foo");
     }
 
-    public Chapter getItem(int position) {
-        return media.getChapters().get(position);
-    }
 
     public interface Callback {
         void onPlayChapterButtonClicked(int position);

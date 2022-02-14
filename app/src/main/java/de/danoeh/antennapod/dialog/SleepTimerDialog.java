@@ -18,17 +18,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import com.google.android.material.snackbar.Snackbar;
 import de.danoeh.antennapod.R;
-import de.danoeh.antennapod.event.playback.SleepTimerUpdatedEvent;
+
 import de.danoeh.antennapod.core.preferences.SleepTimerPreferences;
-import de.danoeh.antennapod.core.service.playback.PlaybackService;
+
 import de.danoeh.antennapod.core.util.Converter;
-import de.danoeh.antennapod.core.util.playback.PlaybackController;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 public class SleepTimerDialog extends DialogFragment {
-    private PlaybackController controller;
+
     private EditText etxtTime;
     private Spinner spTimeUnit;
     private LinearLayout timeSetup;
@@ -42,21 +42,13 @@ public class SleepTimerDialog extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        controller = new PlaybackController(getActivity()) {
-            @Override
-            public void loadMediaInfo() {
-            }
-        };
-        controller.init();
-        EventBus.getDefault().register(this);
+
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (controller != null) {
-            controller.release();
-        }
+
         EventBus.getDefault().unregister(this);
     }
 
@@ -81,21 +73,7 @@ public class SleepTimerDialog extends DialogFragment {
         extendSleepTenMinutesButton.setText(getString(R.string.extend_sleep_timer_label, 10));
         Button extendSleepTwentyMinutesButton = content.findViewById(R.id.extendSleepTwentyMinutesButton);
         extendSleepTwentyMinutesButton.setText(getString(R.string.extend_sleep_timer_label, 20));
-        extendSleepFiveMinutesButton.setOnClickListener(v -> {
-            if (controller != null) {
-                controller.extendSleepTimer(5 * 1000 * 60);
-            }
-        });
-        extendSleepTenMinutesButton.setOnClickListener(v -> {
-            if (controller != null) {
-                controller.extendSleepTimer(10 * 1000 * 60);
-            }
-        });
-        extendSleepTwentyMinutesButton.setOnClickListener(v -> {
-            if (controller != null) {
-                controller.extendSleepTimer(20 * 1000 * 60);
-            }
-        });
+
 
         etxtTime.setText(SleepTimerPreferences.lastTimerValue());
         etxtTime.postDelayed(() -> {
@@ -129,42 +107,13 @@ public class SleepTimerDialog extends DialogFragment {
                 -> SleepTimerPreferences.setAutoEnable(isChecked));
 
         Button disableButton = content.findViewById(R.id.disableSleeptimerButton);
-        disableButton.setOnClickListener(v -> {
-            if (controller != null) {
-                controller.disableSleepTimer();
-            }
-        });
+
         Button setButton = content.findViewById(R.id.setSleeptimerButton);
-        setButton.setOnClickListener(v -> {
-            if (!PlaybackService.isRunning) {
-                Snackbar.make(content, R.string.no_media_playing_label, Snackbar.LENGTH_LONG).show();
-                return;
-            }
-            try {
-                long time = Long.parseLong(etxtTime.getText().toString());
-                if (time == 0) {
-                    throw new NumberFormatException("Timer must not be zero");
-                }
-                SleepTimerPreferences.setLastTimer(etxtTime.getText().toString(), spTimeUnit.getSelectedItemPosition());
-                if (controller != null) {
-                    controller.setSleepTimer(SleepTimerPreferences.timerMillis());
-                }
-                closeKeyboard(content);
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
-                Snackbar.make(content, R.string.time_dialog_invalid_input, Snackbar.LENGTH_LONG).show();
-            }
-        });
+
         return builder.create();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    @SuppressWarnings("unused")
-    public void timerUpdated(SleepTimerUpdatedEvent event) {
-        timeDisplay.setVisibility(event.isOver() || event.isCancelled() ? View.GONE : View.VISIBLE);
-        timeSetup.setVisibility(event.isOver() || event.isCancelled() ? View.VISIBLE : View.GONE);
-        time.setText(Converter.getDurationStringLong((int) event.getTimeLeft()));
-    }
+
 
     private void closeKeyboard(View content) {
         InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Activity.INPUT_METHOD_SERVICE);

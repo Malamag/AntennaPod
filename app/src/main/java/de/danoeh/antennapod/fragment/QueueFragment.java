@@ -24,26 +24,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.leinardi.android.speeddial.SpeedDialView;
 
 import de.danoeh.antennapod.R;
-import de.danoeh.antennapod.activity.MainActivity;
 import de.danoeh.antennapod.adapter.EpisodeItemListAdapter;
 import de.danoeh.antennapod.adapter.QueueRecyclerAdapter;
 import de.danoeh.antennapod.core.dialog.ConfirmationDialog;
 import de.danoeh.antennapod.core.event.DownloadEvent;
 import de.danoeh.antennapod.core.event.DownloaderUpdate;
 import de.danoeh.antennapod.event.FeedItemEvent;
-import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.QueueEvent;
 import de.danoeh.antennapod.event.UnreadItemsUpdateEvent;
 import de.danoeh.antennapod.core.menuhandler.MenuItemUtils;
-import de.danoeh.antennapod.fragment.actions.EpisodeMultiSelectActionHandler;
 import de.danoeh.antennapod.fragment.swipeactions.SwipeActions;
 import de.danoeh.antennapod.model.feed.FeedItem;
-import de.danoeh.antennapod.core.feed.util.PlaybackSpeedUtils;
 import de.danoeh.antennapod.core.preferences.UserPreferences;
 import de.danoeh.antennapod.core.service.download.DownloadService;
 import de.danoeh.antennapod.core.storage.DBReader;
@@ -203,19 +198,7 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlaybackPositionEvent event) {
-        if (recyclerAdapter != null) {
-            for (int i = 0; i < recyclerAdapter.getItemCount(); i++) {
-                EpisodeItemViewHolder holder = (EpisodeItemViewHolder)
-                        recyclerView.findViewHolderForAdapterPosition(i);
-                if (holder != null && holder.isCurrentlyPlayingItem()) {
-                    holder.notifyPlaybackPositionUpdated(event);
-                    break;
-                }
-            }
-        }
-    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlayerStatusChanged(PlayerStatusEvent event) {
@@ -552,7 +535,6 @@ public class QueueFragment extends Fragment implements Toolbar.OnMenuItemClickLi
             for (FeedItem item : queue) {
                 float playbackSpeed = 1;
                 if (UserPreferences.timeRespectsSpeed()) {
-                    playbackSpeed = PlaybackSpeedUtils.getCurrentPlaybackSpeed(item.getMedia());
                 }
                 if (item.getMedia() != null) {
                     long itemTimeLeft = item.getMedia().getDuration() - item.getMedia().getPosition();

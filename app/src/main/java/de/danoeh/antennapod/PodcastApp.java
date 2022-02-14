@@ -10,7 +10,7 @@ import com.joanzapata.iconify.fonts.FontAwesomeModule;
 import com.joanzapata.iconify.fonts.MaterialModule;
 
 import de.danoeh.antennapod.activity.SplashActivity;
-import de.danoeh.antennapod.core.ApCoreEventBusIndex;
+
 import de.danoeh.antennapod.core.ClientConfig;
 import de.danoeh.antennapod.error.CrashReportWriter;
 import de.danoeh.antennapod.error.RxJavaErrorHandlerSetup;
@@ -63,7 +63,6 @@ public class PodcastApp extends Application {
         SPAUtil.sendSPAppsQueryFeedsIntent(this);
         EventBus.builder()
                 .addIndex(new ApEventBusIndex())
-                .addIndex(new ApCoreEventBusIndex())
                 .logNoSubscriberMessages(false)
                 .sendNoSubscriberEvent(false)
                 .installDefaultEventBus();

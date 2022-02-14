@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import de.danoeh.antennapod.adapter.EpisodeItemListAdapter;
 import de.danoeh.antennapod.event.FeedListUpdateEvent;
-import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
+
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.UnreadItemsUpdateEvent;
 import de.danoeh.antennapod.core.menuhandler.MenuItemUtils;
@@ -308,18 +308,7 @@ public abstract class EpisodesListFragment extends Fragment {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlaybackPositionEvent event) {
-        if (listAdapter != null) {
-            for (int i = 0; i < listAdapter.getItemCount(); i++) {
-                EpisodeItemViewHolder holder = (EpisodeItemViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
-                if (holder != null && holder.isCurrentlyPlayingItem()) {
-                    holder.notifyPlaybackPositionUpdated(event);
-                    break;
-                }
-            }
-        }
-    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onKeyUp(KeyEvent event) {

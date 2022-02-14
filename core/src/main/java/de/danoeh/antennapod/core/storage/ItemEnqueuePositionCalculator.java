@@ -11,7 +11,7 @@ import de.danoeh.antennapod.core.service.download.DownloadService;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.core.preferences.UserPreferences.EnqueueLocation;
-import de.danoeh.antennapod.model.playback.Playable;
+
 
 /**
  * @see DBWriter#addQueueItem(Context, boolean, long...) it uses the class to determine
@@ -32,7 +32,7 @@ class ItemEnqueuePositionCalculator {
      * @param curQueue           the queue to which the item is to be inserted
      * @param currentPlaying     the currently playing media
      */
-    public int calcPosition(@NonNull List<FeedItem> curQueue, @Nullable Playable currentPlaying) {
+    public int calcPosition(@NonNull List<FeedItem> curQueue) {
         switch (enqueueLocation) {
             case BACK:
                 return curQueue.size();
@@ -43,7 +43,7 @@ class ItemEnqueuePositionCalculator {
                 // Simply returning 0 will reverse the order.
                 return getPositionOfFirstNonDownloadingItem(0, curQueue);
             case AFTER_CURRENTLY_PLAYING:
-                int currentlyPlayingPosition = getCurrentlyPlayingPosition(curQueue, currentPlaying);
+                int currentlyPlayingPosition = 0;
                 return getPositionOfFirstNonDownloadingItem(
                         currentlyPlayingPosition + 1, curQueue);
             default:
@@ -73,17 +73,9 @@ class ItemEnqueuePositionCalculator {
                 && DownloadService.isDownloadingFile(curItem.getMedia().getDownload_url());
     }
 
-    private static int getCurrentlyPlayingPosition(@NonNull List<FeedItem> curQueue,
-                                                   @Nullable Playable currentPlaying) {
-        if (!(currentPlaying instanceof FeedMedia)) {
-            return -1;
-        }
-        final long curPlayingItemId = ((FeedMedia) currentPlaying).getItem().getId();
-        for (int i = 0; i < curQueue.size(); i++) {
-            if (curPlayingItemId == curQueue.get(i).getId()) {
-                return i;
-            }
-        }
+    private static int getCurrentlyPlayingPosition(@NonNull List<FeedItem> curQueue) {
+
+
         return -1;
     }
 }

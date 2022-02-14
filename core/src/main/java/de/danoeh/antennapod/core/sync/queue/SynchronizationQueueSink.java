@@ -52,12 +52,9 @@ public class SynchronizationQueueSink {
         if (media.getItem() == null) {
             return;
         }
-        if (media.getStartPosition() < 0 || (!completed && media.getStartPosition() >= media.getPosition())) {
-            return;
-        }
+
         EpisodeAction action = new EpisodeAction.Builder(media.getItem(), EpisodeAction.PLAY)
                 .currentTimestamp()
-                .started(media.getStartPosition() / 1000)
                 .position((completed ? media.getDuration() : media.getPosition()) / 1000)
                 .total(media.getDuration() / 1000)
                 .build();

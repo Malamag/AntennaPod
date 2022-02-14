@@ -30,7 +30,6 @@ import de.danoeh.antennapod.adapter.FeedSearchResultAdapter;
 import de.danoeh.antennapod.core.event.DownloadEvent;
 import de.danoeh.antennapod.core.event.DownloaderUpdate;
 import de.danoeh.antennapod.event.FeedItemEvent;
-import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.UnreadItemsUpdateEvent;
 import de.danoeh.antennapod.model.feed.Feed;
@@ -278,18 +277,7 @@ public class SearchFragment extends Fragment {
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlaybackPositionEvent event) {
-        if (adapter != null) {
-            for (int i = 0; i < adapter.getItemCount(); i++) {
-                EpisodeItemViewHolder holder = (EpisodeItemViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
-                if (holder != null && holder.isCurrentlyPlayingItem()) {
-                    holder.notifyPlaybackPositionUpdated(event);
-                    break;
-                }
-            }
-        }
-    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlayerStatusChanged(PlayerStatusEvent event) {

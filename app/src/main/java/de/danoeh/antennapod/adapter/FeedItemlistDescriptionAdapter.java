@@ -12,14 +12,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import de.danoeh.antennapod.R;
-import de.danoeh.antennapod.model.playback.MediaType;
+
 import de.danoeh.antennapod.core.util.NetworkUtils;
-import de.danoeh.antennapod.model.playback.RemoteMedia;
+
 import de.danoeh.antennapod.model.feed.FeedItem;
-import de.danoeh.antennapod.core.service.playback.PlaybackService;
+
 import de.danoeh.antennapod.core.util.DateFormatter;
-import de.danoeh.antennapod.model.playback.Playable;
-import de.danoeh.antennapod.core.util.playback.PlaybackServiceStarter;
+
 import de.danoeh.antennapod.core.util.syndication.HtmlToPlainText;
 import de.danoeh.antennapod.dialog.StreamingConfirmationDialog;
 
@@ -73,21 +72,9 @@ public class FeedItemlistDescriptionAdapter extends ArrayAdapter<FeedItem> {
             if (item.getMedia() == null) {
                 return;
             }
-            Playable playable = new RemoteMedia(item);
-            if (!NetworkUtils.isStreamingAllowed()) {
-                new StreamingConfirmationDialog(getContext(), playable).show();
-                return;
-            }
 
-            new PlaybackServiceStarter(getContext(), playable)
-                    .shouldStream(true)
-                    .startWhenPrepared(true)
-                    .callEvenIfRunning(true)
-                    .start();
 
-            if (playable.getMediaType() == MediaType.VIDEO) {
-                getContext().startActivity(PlaybackService.getPlayerActivityIntent(getContext(), playable));
-            }
+
         });
         convertView.setOnClickListener(v -> {
             if (holder.description.getTag() == Boolean.TRUE) {

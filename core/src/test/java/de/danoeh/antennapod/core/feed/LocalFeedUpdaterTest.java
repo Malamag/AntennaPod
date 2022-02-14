@@ -11,7 +11,6 @@ import androidx.documentfile.provider.AssetsDocumentFile;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import de.danoeh.antennapod.core.preferences.PlaybackPreferences;
 import de.danoeh.antennapod.model.feed.Feed;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import org.junit.After;

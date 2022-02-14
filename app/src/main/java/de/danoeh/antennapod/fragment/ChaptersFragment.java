@@ -24,11 +24,11 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.adapter.ChaptersListAdapter;
-import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
+
 import de.danoeh.antennapod.core.util.ChapterUtils;
-import de.danoeh.antennapod.core.util.playback.PlaybackController;
+
 import de.danoeh.antennapod.model.feed.Chapter;
-import de.danoeh.antennapod.model.playback.Playable;
+
 import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -37,10 +37,10 @@ import io.reactivex.schedulers.Schedulers;
 public class ChaptersFragment extends AppCompatDialogFragment {
     public static final String TAG = "ChaptersFragment";
     private ChaptersListAdapter adapter;
-    private PlaybackController controller;
+
     private Disposable disposable;
     private int focusedChapter = -1;
-    private Playable media;
+
     private LinearLayoutManager layoutManager;
     private ProgressBar progressBar;
 
@@ -69,8 +69,7 @@ public class ChaptersFragment extends AppCompatDialogFragment {
             /*if (controller.getStatus() != PlayerStatus.PLAYING) {
                 controller.playPause();
             }*/
-            Chapter chapter = adapter.getItem(pos);
-            controller.seekTo((int) chapter.getStart());
+
             updateChapterSelection(pos);
         });
         recyclerView.setAdapter(adapter);
@@ -87,18 +86,7 @@ public class ChaptersFragment extends AppCompatDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        controller = new PlaybackController(getActivity()) {
-            @Override
-            public void loadMediaInfo() {
-                ChaptersFragment.this.loadMediaInfo();
-            }
 
-            @Override
-            public void onPositionObserverUpdate() {
-                //adapter.notifyDataSetChanged();
-            }
-        };
-        controller.init();
         EventBus.getDefault().register(this);
         loadMediaInfo();
     }
@@ -110,57 +98,28 @@ public class ChaptersFragment extends AppCompatDialogFragment {
         if (disposable != null) {
             disposable.dispose();
         }
-        controller.release();
-        controller = null;
+
         EventBus.getDefault().unregister(this);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlaybackPositionEvent event) {
-        updateChapterSelection(getCurrentChapter(media));
-        adapter.notifyTimeChanged(event.getPosition());
-    }
 
-    private int getCurrentChapter(Playable media) {
-        if (controller == null) {
+
+    private int getCurrentChapter() {
+
             return -1;
-        }
-        return ChapterUtils.getCurrentChapterIndex(media, controller.getPosition());
+
+
     }
 
     private void loadMediaInfo() {
         if (disposable != null) {
             disposable.dispose();
         }
-        disposable = Maybe.create(emitter -> {
-            Playable media = controller.getMedia();
-            if (media != null) {
-                ChapterUtils.loadChapters(media, getContext());
-                emitter.onSuccess(media);
-            } else {
-                emitter.onComplete();
-            }
-        })
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(media -> onMediaChanged((Playable) media),
-                error -> Log.e(TAG, Log.getStackTraceString(error)));
+
     }
 
-    private void onMediaChanged(Playable media) {
-        this.media = media;
-        focusedChapter = -1;
-        if (adapter == null) {
-            return;
-        }
-        if (media.getChapters() != null && media.getChapters().size() <= 0) {
-            dismiss();
-        } else {
-            progressBar.setVisibility(View.GONE);
-        }
-        adapter.setMedia(media);
-        int positionOfCurrentChapter = getCurrentChapter(media);
-        updateChapterSelection(positionOfCurrentChapter);
+    private void onMediaChanged() {
+
     }
 
     private void updateChapterSelection(int position) {

@@ -41,20 +41,17 @@ import de.danoeh.antennapod.event.FeedListUpdateEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.core.glide.ApGlideSettings;
 import de.danoeh.antennapod.core.glide.FastBlurTransformation;
-import de.danoeh.antennapod.core.preferences.PlaybackPreferences;
 import de.danoeh.antennapod.core.preferences.UserPreferences;
 import de.danoeh.antennapod.core.service.download.DownloadRequest;
 import de.danoeh.antennapod.core.service.download.DownloadStatus;
 import de.danoeh.antennapod.core.service.download.Downloader;
 import de.danoeh.antennapod.core.service.download.HttpDownloader;
-import de.danoeh.antennapod.core.service.playback.PlaybackService;
 import de.danoeh.antennapod.core.storage.DBReader;
 import de.danoeh.antennapod.core.storage.DBWriter;
 import de.danoeh.antennapod.core.util.FileNameGenerator;
 import de.danoeh.antennapod.parser.feed.FeedHandler;
 import de.danoeh.antennapod.parser.feed.FeedHandlerResult;
 import de.danoeh.antennapod.core.util.DownloadError;
-import de.danoeh.antennapod.core.util.IntentUtils;
 import de.danoeh.antennapod.core.util.StorageUtils;
 import de.danoeh.antennapod.core.util.URLChecker;
 import de.danoeh.antennapod.core.util.syndication.FeedDiscoverer;
@@ -64,7 +61,6 @@ import de.danoeh.antennapod.dialog.AuthenticationDialog;
 import de.danoeh.antennapod.discovery.PodcastSearcherRegistry;
 import de.danoeh.antennapod.model.feed.Feed;
 import de.danoeh.antennapod.model.feed.FeedPreferences;
-import de.danoeh.antennapod.model.playback.RemoteMedia;
 import de.danoeh.antennapod.parser.feed.UnsupportedFeedtypeException;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -473,8 +469,7 @@ public class OnlineFeedViewActivity extends AppCompatActivity {
         });
 
         viewBinding.stopPreviewButton.setOnClickListener(v -> {
-            PlaybackPreferences.writeNoMediaPlaying();
-            IntentUtils.sendLocalBroadcast(this, PlaybackService.ACTION_SHUTDOWN_PLAYBACK_SERVICE);
+
         });
 
         if (UserPreferences.isEnableAutodownload()) {
@@ -632,9 +627,8 @@ public class OnlineFeedViewActivity extends AppCompatActivity {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void playbackStateChanged(PlayerStatusEvent event) {
-        boolean isPlayingPreview =
-                PlaybackPreferences.getCurrentlyPlayingMediaType() == RemoteMedia.PLAYABLE_TYPE_REMOTE_MEDIA;
-        viewBinding.stopPreviewButton.setVisibility(isPlayingPreview ? View.VISIBLE : View.GONE);
+
+        viewBinding.stopPreviewButton.setVisibility(false ? View.VISIBLE : View.GONE);
     }
 
     /**

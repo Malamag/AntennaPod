@@ -9,14 +9,12 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
-import de.danoeh.antennapod.model.playback.MediaType;
-import de.danoeh.antennapod.model.playback.Playable;
-import de.danoeh.antennapod.model.playback.RemoteMedia;
+
 
 import java.util.Date;
 import java.util.List;
 
-public class FeedMedia extends FeedFile implements Playable {
+public class FeedMedia extends FeedFile  {
     public static final int FEEDFILETYPE_FEEDMEDIA = 2;
     public static final int PLAYABLE_TYPE_FEEDMEDIA = 1;
     public static final String FILENAME_PREFIX_EMBEDDED_COVER = "metadata-retriever:";
@@ -99,29 +97,18 @@ public class FeedMedia extends FeedFile implements Playable {
      * This is used by the MediaBrowserService
      */
     public MediaBrowserCompat.MediaItem getMediaItem() {
-        Playable p = this;
+
         MediaDescriptionCompat.Builder builder = new MediaDescriptionCompat.Builder()
-                .setMediaId(String.valueOf(id))
-                .setTitle(p.getEpisodeTitle())
-                .setDescription(p.getFeedTitle())
-                .setSubtitle(p.getFeedTitle());
-        if (item != null) {
-            // getImageLocation() also loads embedded images, which we can not send to external devices
-            if (item.getImageUrl() != null) {
-                builder.setIconUri(Uri.parse(item.getImageUrl()));
-            } else if (item.getFeed() != null && item.getFeed().getImageUrl() != null) {
-                builder.setIconUri(Uri.parse(item.getFeed().getImageUrl()));
-            }
-        }
+                .setMediaId(String.valueOf(id));
+
+
         return new MediaBrowserCompat.MediaItem(builder.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE);
     }
 
     /**
      * Uses mimetype to determine the type of media.
      */
-    public MediaType getMediaType() {
-        return MediaType.fromMimeType(mime_type);
-    }
+
 
     public void updateFromOther(FeedMedia other) {
         super.updateFromOther(other);
@@ -161,10 +148,6 @@ public class FeedMedia extends FeedFile implements Playable {
         this.duration = duration;
     }
 
-    @Override
-    public void setLastPlayedTime(long lastPlayedTime) {
-        this.lastPlayedTime = lastPlayedTime;
-    }
 
     public int getPlayedDuration() {
         return played_duration;
@@ -182,10 +165,7 @@ public class FeedMedia extends FeedFile implements Playable {
         return position;
     }
 
-    @Override
-    public long getLastPlayedTime() {
-        return lastPlayedTime;
-    }
+
 
     public void setPosition(int position) {
         this.position = position;
@@ -202,13 +182,7 @@ public class FeedMedia extends FeedFile implements Playable {
         this.size = size;
     }
 
-    @Override
-    public String getDescription() {
-        if (item != null) {
-            return item.getDescription();
-        }
-        return null;
-    }
+
 
     /**
      * Indicates we asked the service what the size was, but didn't
@@ -261,11 +235,6 @@ public class FeedMedia extends FeedFile implements Playable {
         return (this.position > 0);
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
     public boolean hasEmbeddedPicture() {
         if(hasEmbeddedPicture == null) {
             checkEmbeddedPicture();
@@ -273,140 +242,18 @@ public class FeedMedia extends FeedFile implements Playable {
         return hasEmbeddedPicture;
     }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
-        dest.writeLong(item != null ? item.getId() : 0L);
 
-        dest.writeInt(duration);
-        dest.writeInt(position);
-        dest.writeLong(size);
-        dest.writeString(mime_type);
-        dest.writeString(file_url);
-        dest.writeString(download_url);
-        dest.writeByte((byte) ((downloaded) ? 1 : 0));
-        dest.writeLong((playbackCompletionDate != null) ? playbackCompletionDate.getTime() : 0);
-        dest.writeInt(played_duration);
-        dest.writeLong(lastPlayedTime);
-    }
 
-    @Override
-    public void writeToPreferences(Editor prefEditor) {
-        if(item != null && item.getFeed() != null) {
-            prefEditor.putLong(PREF_FEED_ID, item.getFeed().getId());
-        } else {
-            prefEditor.putLong(PREF_FEED_ID, 0L);
-        }
-        prefEditor.putLong(PREF_MEDIA_ID, id);
-    }
 
-    @Override
-    public String getEpisodeTitle() {
-        if (item == null) {
-            return null;
-        }
-        if (item.getTitle() != null) {
-            return item.getTitle();
-        } else {
-            return item.getIdentifyingValue();
-        }
-    }
 
-    @Override
-    public List<Chapter> getChapters() {
-        if (item == null) {
-            return null;
-        }
-        return item.getChapters();
-    }
 
-    @Override
-    public String getWebsiteLink() {
-        if (item == null) {
-            return null;
-        }
-        return item.getLink();
-    }
 
-    @Override
-    public String getFeedTitle() {
-        if (item == null || item.getFeed() == null) {
-            return null;
-        }
-        return item.getFeed().getTitle();
-    }
-
-    @Override
-    public Object getIdentifier() {
-        return id;
-    }
-
-    @Override
-    public String getLocalMediaUrl() {
-        return file_url;
-    }
-
-    @Override
-    public String getStreamUrl() {
-        return download_url;
-    }
-
-    public int getStartPosition() {
-        return startPosition;
-    }
-
-    @Override
-    public Date getPubDate() {
-        if (item == null) {
-            return null;
-        }
-        if (item.getPubDate() != null) {
-            return item.getPubDate();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public boolean localFileAvailable() {
-        return isDownloaded() && file_url != null;
-    }
 
     public long getItemId() {
         return itemID;
     }
 
-    @Override
-    public void onPlaybackStart() {
-        startPosition = Math.max(position, 0);
-        playedDurationWhenStarted = played_duration;
-    }
 
-    @Override
-    public void onPlaybackPause(Context context) {
-        if (position > startPosition) {
-            played_duration = playedDurationWhenStarted + position - startPosition;
-            playedDurationWhenStarted = played_duration;
-        }
-        startPosition = position;
-    }
-
-    @Override
-    public void onPlaybackCompleted(Context context) {
-        startPosition = -1;
-    }
-
-    @Override
-    public int getPlayableType() {
-        return PLAYABLE_TYPE_FEEDMEDIA;
-    }
-
-    @Override
-    public void setChapters(List<Chapter> chapters) {
-        if (item != null) {
-            item.setChapters(chapters);
-        }
-    }
 
     public static final Parcelable.Creator<FeedMedia> CREATOR = new Parcelable.Creator<FeedMedia>() {
         public FeedMedia createFromParcel(Parcel in) {
@@ -423,42 +270,19 @@ public class FeedMedia extends FeedFile implements Playable {
         }
     };
 
-    @Override
-    public String getImageLocation() {
-        if (item != null) {
-            return item.getImageLocation();
-        } else if (hasEmbeddedPicture()) {
-            return FILENAME_PREFIX_EMBEDDED_COVER + getLocalMediaUrl();
-        } else {
-            return null;
-        }
-    }
+
 
     public void setHasEmbeddedPicture(Boolean hasEmbeddedPicture) {
         this.hasEmbeddedPicture = hasEmbeddedPicture;
     }
 
-    @Override
-    public void setDownloaded(boolean downloaded) {
-        super.setDownloaded(downloaded);
-        if(item != null && downloaded && item.isNew()) {
-            item.setPlayed(false);
-        }
-    }
 
-    @Override
-    public void setFile_url(String file_url) {
-        super.setFile_url(file_url);
-    }
 
     public void checkEmbeddedPicture() {
-        if (!localFileAvailable()) {
-            hasEmbeddedPicture = Boolean.FALSE;
-            return;
-        }
+
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         try {
-            mmr.setDataSource(getLocalMediaUrl());
+
             byte[] image = mmr.getEmbeddedPicture();
             if(image != null) {
                 hasEmbeddedPicture = Boolean.TRUE;
@@ -476,9 +300,7 @@ public class FeedMedia extends FeedFile implements Playable {
         if (o == null) {
             return false;
         }
-        if (o instanceof RemoteMedia) {
-            return o.equals(this);
-        }
+
         return super.equals(o);
     }
 }

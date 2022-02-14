@@ -12,10 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.snackbar.Snackbar;
 
 import de.danoeh.antennapod.R;
-import de.danoeh.antennapod.activity.MainActivity;
-import de.danoeh.antennapod.core.preferences.PlaybackPreferences;
 import de.danoeh.antennapod.core.preferences.UserPreferences;
-import de.danoeh.antennapod.core.service.playback.PlaybackService;
 import de.danoeh.antennapod.core.storage.DBWriter;
 import de.danoeh.antennapod.core.sync.SynchronizationSettings;
 import de.danoeh.antennapod.core.sync.queue.SynchronizationQueueSink;
@@ -143,7 +140,7 @@ public class FeedItemMenuHandler {
 
         @NonNull Context context = fragment.requireContext();
         if (menuItemId == R.id.skip_episode_item) {
-            IntentUtils.sendLocalBroadcast(context, PlaybackService.ACTION_SKIP_CURRENT_EPISODE);
+
         } else if (menuItemId == R.id.remove_item) {
             DBWriter.deleteFeedMediaOfItem(context, selectedItem.getMedia().getId());
         } else if (menuItemId == R.id.remove_new_flag_item) {
@@ -183,10 +180,7 @@ public class FeedItemMenuHandler {
             DBWriter.removeFavoriteItem(selectedItem);
         } else if (menuItemId == R.id.reset_position) {
             selectedItem.getMedia().setPosition(0);
-            if (PlaybackPreferences.getCurrentlyPlayingFeedMediaId() == selectedItem.getMedia().getId()) {
-                PlaybackPreferences.writeNoMediaPlaying();
-                IntentUtils.sendLocalBroadcast(context, PlaybackService.ACTION_SHUTDOWN_PLAYBACK_SERVICE);
-            }
+
             DBWriter.markItemPlayed(selectedItem, FeedItem.UNPLAYED, true);
         } else if (menuItemId == R.id.visit_website_item) {
             IntentUtils.openInBrowser(context, FeedItemUtil.getLinkWithFallback(selectedItem));

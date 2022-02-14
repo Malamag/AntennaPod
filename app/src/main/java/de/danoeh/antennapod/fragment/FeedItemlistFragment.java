@@ -53,7 +53,6 @@ import de.danoeh.antennapod.core.event.DownloaderUpdate;
 import de.danoeh.antennapod.event.FavoritesEvent;
 import de.danoeh.antennapod.event.FeedItemEvent;
 import de.danoeh.antennapod.event.FeedListUpdateEvent;
-import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.QueueEvent;
 import de.danoeh.antennapod.event.UnreadItemsUpdateEvent;
@@ -389,18 +388,7 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(PlaybackPositionEvent event) {
-        if (adapter != null) {
-            for (int i = 0; i < adapter.getItemCount(); i++) {
-                EpisodeItemViewHolder holder = (EpisodeItemViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
-                if (holder != null && holder.isCurrentlyPlayingItem()) {
-                    holder.notifyPlaybackPositionUpdated(event);
-                    break;
-                }
-            }
-        }
-    }
+
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void favoritesChanged(FavoritesEvent event) {

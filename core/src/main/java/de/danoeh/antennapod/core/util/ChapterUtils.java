@@ -13,7 +13,7 @@ import de.danoeh.antennapod.core.storage.DBReader;
 import de.danoeh.antennapod.core.util.comparator.ChapterStartTimeComparator;
 import de.danoeh.antennapod.parser.media.id3.ChapterReader;
 import de.danoeh.antennapod.parser.media.id3.ID3ReaderException;
-import de.danoeh.antennapod.model.playback.Playable;
+
 import de.danoeh.antennapod.parser.media.vorbis.VorbisCommentChapterReader;
 import de.danoeh.antennapod.parser.media.vorbis.VorbisCommentReaderException;
 import okhttp3.Request;
@@ -37,90 +37,25 @@ public class ChapterUtils {
     private ChapterUtils() {
     }
 
-    public static int getCurrentChapterIndex(Playable media, int position) {
-        if (media == null || media.getChapters() == null || media.getChapters().size() == 0) {
-            return -1;
-        }
-        List<Chapter> chapters = media.getChapters();
-        for (int i = 0; i < chapters.size(); i++) {
-            if (chapters.get(i).getStart() > position) {
-                return i - 1;
-            }
-        }
-        return chapters.size() - 1;
+    public static int getCurrentChapterIndex(int position) {
+
+        return  1;
     }
 
-    public static void loadChapters(Playable playable, Context context) {
-        if (playable.getChapters() != null) {
-            // Already loaded
-            return;
-        }
+    public static void loadChapters( Context context) {
 
-        List<Chapter> chaptersFromDatabase = null;
-        if (playable instanceof FeedMedia) {
-            FeedMedia feedMedia = (FeedMedia) playable;
-            if (feedMedia.getItem() == null) {
-                feedMedia.setItem(DBReader.getFeedItem(feedMedia.getItemId()));
-            }
-            if (feedMedia.getItem().hasChapters()) {
-                chaptersFromDatabase = DBReader.loadChaptersOfFeedItem(feedMedia.getItem());
-            }
-        }
 
-        List<Chapter> chaptersFromMediaFile = ChapterUtils.loadChaptersFromMediaFile(playable, context);
-        List<Chapter> chapters = ChapterMerger.merge(chaptersFromDatabase, chaptersFromMediaFile);
-        if (chapters == null) {
-            // Do not try loading again. There are no chapters.
-            playable.setChapters(Collections.emptyList());
-        } else {
-            playable.setChapters(chapters);
-        }
     }
 
-    public static List<Chapter> loadChaptersFromMediaFile(Playable playable, Context context) {
-        try (CountingInputStream in = openStream(playable, context)) {
-            List<Chapter> chapters = readId3ChaptersFrom(in);
-            if (!chapters.isEmpty()) {
-                Log.i(TAG, "Chapters loaded");
-                return chapters;
-            }
-        } catch (IOException | ID3ReaderException e) {
-            Log.e(TAG, "Unable to load ID3 chapters: " + e.getMessage());
-        }
+    public static List<Chapter> loadChaptersFromMediaFile( Context context) {
 
-        try (CountingInputStream in = openStream(playable, context)) {
-            List<Chapter> chapters = readOggChaptersFromInputStream(in);
-            if (!chapters.isEmpty()) {
-                Log.i(TAG, "Chapters loaded");
-                return chapters;
-            }
-        } catch (IOException | VorbisCommentReaderException e) {
-            Log.e(TAG, "Unable to load vorbis chapters: " + e.getMessage());
-        }
         return null;
     }
 
-    private static CountingInputStream openStream(Playable playable, Context context) throws IOException {
-        if (playable.localFileAvailable()) {
-            if (playable.getLocalMediaUrl() == null) {
-                throw new IOException("No local url");
-            }
-            File source = new File(playable.getLocalMediaUrl());
-            if (!source.exists()) {
-                throw new IOException("Local file does not exist");
-            }
-            return new CountingInputStream(new FileInputStream(source));
-        } else if (playable.getStreamUrl().startsWith(ContentResolver.SCHEME_CONTENT)) {
-            Uri uri = Uri.parse(playable.getStreamUrl());
-            return new CountingInputStream(context.getContentResolver().openInputStream(uri));
-        } else {
-            Request request = new Request.Builder().url(playable.getStreamUrl()).build();
-            Response response = AntennapodHttpClient.getHttpClient().newCall(request).execute();
-            if (response.body() == null) {
-                throw new IOException("Body is null");
-            }
-            return new CountingInputStream(response.body().byteStream());
-        }
+    private static CountingInputStream openStream(Context context) throws IOException {
+
+
+        throw new IOException("Local file does not exist");
     }
 
     @NonNull

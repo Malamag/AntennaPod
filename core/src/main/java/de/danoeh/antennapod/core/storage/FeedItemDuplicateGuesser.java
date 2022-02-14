@@ -22,9 +22,7 @@ public class FeedItemDuplicateGuesser {
         if (media1 == null || media2 == null) {
             return false;
         }
-        if (sameAndNotEmpty(media1.getStreamUrl(), media2.getStreamUrl())) {
-            return true;
-        }
+
         return titlesLookSimilar(item1, item2)
                 && datesLookSimilar(item1, item2)
                 && durationsLookSimilar(media1, media2)

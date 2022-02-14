@@ -57,7 +57,7 @@ public class MediaDownloadedHandler implements Runnable {
 
         // check if file has chapters
         if (media.getItem() != null && !media.getItem().hasChapters()) {
-            media.setChapters(ChapterUtils.loadChaptersFromMediaFile(media, context));
+
         }
 
         // Get duration
@@ -96,8 +96,7 @@ public class MediaDownloadedHandler implements Runnable {
             Log.e(TAG, "MediaHandlerThread was interrupted");
         } catch (ExecutionException e) {
             Log.e(TAG, "ExecutionException in MediaHandlerThread: " + e.getMessage());
-            updatedStatus = new DownloadStatus(media, media.getEpisodeTitle(),
-                    DownloadError.ERROR_DB_ACCESS_ERROR, false, e.getMessage(), request.isInitiatedByUser());
+
         }
 
         if (item != null) {
