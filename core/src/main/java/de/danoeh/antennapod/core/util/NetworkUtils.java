@@ -182,7 +182,10 @@ public class NetworkUtils {
             }
             long size = Integer.MIN_VALUE;
             if (media.isDownloaded()) {
-
+                File mediaFile = new File(media.getLocalMediaUrl());
+                if (mediaFile.exists()) {
+                    size = mediaFile.length();
+                }
             } else if (!media.checkedOnSizeButUnknown()) {
                 // only query the network if we haven't already checked
 

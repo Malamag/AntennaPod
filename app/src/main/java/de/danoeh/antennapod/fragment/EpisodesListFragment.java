@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import de.danoeh.antennapod.adapter.EpisodeItemListAdapter;
 import de.danoeh.antennapod.event.FeedListUpdateEvent;
-
+import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.UnreadItemsUpdateEvent;
 import de.danoeh.antennapod.core.menuhandler.MenuItemUtils;
@@ -137,8 +137,8 @@ public abstract class EpisodesListFragment extends Fragment {
                 public void onConfirmButtonPressed(DialogInterface dialog) {
                     dialog.dismiss();
                     DBWriter.markAllItemsRead();
-                    //((MainActivity) getActivity()).showSnackbarAbovePlayer(
-                            //R.string.mark_all_read_msg, Toast.LENGTH_SHORT);
+                    ((MainActivity) getActivity()).showSnackbarAbovePlayer(
+                            R.string.mark_all_read_msg, Toast.LENGTH_SHORT);
                 }
             };
             markAllReadConfirmationDialog.createNewDialog().show();
@@ -152,14 +152,14 @@ public abstract class EpisodesListFragment extends Fragment {
                 public void onConfirmButtonPressed(DialogInterface dialog) {
                     dialog.dismiss();
                     DBWriter.removeAllNewFlags();
-                    //((MainActivity) getActivity()).showSnackbarAbovePlayer(
-                            //R.string.removed_all_new_flags_msg, Toast.LENGTH_SHORT);
+                    ((MainActivity) getActivity()).showSnackbarAbovePlayer(
+                            R.string.removed_all_new_flags_msg, Toast.LENGTH_SHORT);
                 }
             };
             removeAllNewFlagsConfirmationDialog.createNewDialog().show();
             return true;
         } else if (itemId == R.id.action_search) {
-            //((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance());
+            ((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance());
             return true;
         }
         return false;
@@ -194,7 +194,7 @@ public abstract class EpisodesListFragment extends Fragment {
         txtvInformation = root.findViewById(R.id.txtvInformation);
 
         recyclerView = root.findViewById(android.R.id.list);
-        //recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
+        recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
         setupLoadMoreScrollListener();
 
         RecyclerView.ItemAnimator animator = recyclerView.getItemAnimator();
@@ -284,8 +284,8 @@ public abstract class EpisodesListFragment extends Fragment {
      * snackbar. See #3084 for details.
      */
     private void createRecycleAdapter(RecyclerView recyclerView, EmptyViewHandler emptyViewHandler) {
-        //MainActivity mainActivity = (MainActivity) getActivity();
-        listAdapter = new EpisodeItemListAdapter(new MainActivity());//mainActivity);
+        MainActivity mainActivity = (MainActivity) getActivity();
+        listAdapter = new EpisodeItemListAdapter(mainActivity);
         listAdapter.updateItems(episodes);
         recyclerView.setAdapter(listAdapter);
         emptyViewHandler.updateAdapter(listAdapter);
@@ -308,7 +308,18 @@ public abstract class EpisodesListFragment extends Fragment {
         }
     }
 
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(PlaybackPositionEvent event) {
+        if (listAdapter != null) {
+            for (int i = 0; i < listAdapter.getItemCount(); i++) {
+                EpisodeItemViewHolder holder = (EpisodeItemViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
+                if (holder != null && holder.isCurrentlyPlayingItem()) {
+                    holder.notifyPlaybackPositionUpdated(event);
+                    break;
+                }
+            }
+        }
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onKeyUp(KeyEvent event) {

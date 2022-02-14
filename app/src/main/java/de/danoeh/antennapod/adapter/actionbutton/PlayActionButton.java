@@ -6,7 +6,10 @@ import androidx.annotation.StringRes;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
+import de.danoeh.antennapod.model.playback.MediaType;
+import de.danoeh.antennapod.core.service.playback.PlaybackService;
 import de.danoeh.antennapod.core.storage.DBTasks;
+import de.danoeh.antennapod.core.util.playback.PlaybackServiceStarter;
 
 public class PlayActionButton extends ItemActionButton {
 
@@ -36,6 +39,14 @@ public class PlayActionButton extends ItemActionButton {
             DBTasks.notifyMissingFeedMediaFile(context, media);
             return;
         }
+        new PlaybackServiceStarter(context, media)
+                .callEvenIfRunning(true)
+                .startWhenPrepared(true)
+                .shouldStream(false)
+                .start();
 
+        if (media.getMediaType() == MediaType.VIDEO) {
+            context.startActivity(PlaybackService.getPlayerActivityIntent(context, media));
+        }
     }
 }

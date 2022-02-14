@@ -29,6 +29,7 @@ import de.danoeh.antennapod.core.util.Converter;
 import de.danoeh.antennapod.core.util.IntentUtils;
 import de.danoeh.antennapod.core.util.NetworkUtils;
 import de.danoeh.antennapod.core.util.ShareUtils;
+import de.danoeh.antennapod.core.util.playback.Timeline;
 
 public class ShownotesWebView extends WebView implements View.OnLongClickListener {
     private static final String TAG = "ShownotesWebView";
@@ -72,7 +73,11 @@ public class ShownotesWebView extends WebView implements View.OnLongClickListene
         setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-
+                if (Timeline.isTimecodeLink(url) && timecodeSelectedListener != null) {
+                    timecodeSelectedListener.accept(Timeline.getTimecodeLinkTime(url));
+                } else {
+                    IntentUtils.openInBrowser(getContext(), url);
+                }
                 return true;
             }
 
@@ -102,11 +107,11 @@ public class ShownotesWebView extends WebView implements View.OnLongClickListene
             if (clipboardManager != null) {
                 clipboardManager.setPrimaryClip(ClipData.newPlainText("AntennaPod", r.getExtra()));
             }
-            /*if (this.getContext() instanceof MainActivity) {
+            if (this.getContext() instanceof MainActivity) {
                 ((MainActivity) this.getContext()).showSnackbarAbovePlayer(
                         getResources().getString(R.string.copied_to_clipboard),
                         Snackbar.LENGTH_SHORT);
-            }*/
+            }
             return true;
         }
         selectedUrl = null;
@@ -132,7 +137,11 @@ public class ShownotesWebView extends WebView implements View.OnLongClickListene
             ViewCompat.setElevation(s.getView(), 100);
             s.show();
         } else if (itemId == R.id.go_to_position_item) {
-
+            if (Timeline.isTimecodeLink(selectedUrl) && timecodeSelectedListener != null) {
+                timecodeSelectedListener.accept(Timeline.getTimecodeLinkTime(selectedUrl));
+            } else {
+                Log.e(TAG, "Selected go_to_position_item, but URL was no timecode link: " + selectedUrl);
+            }
         } else {
             selectedUrl = null;
             return false;
@@ -148,7 +157,10 @@ public class ShownotesWebView extends WebView implements View.OnLongClickListene
             return;
         }
 
-
+        if (Timeline.isTimecodeLink(selectedUrl)) {
+            menu.add(Menu.NONE, R.id.go_to_position_item, Menu.NONE, R.string.go_to_position_label);
+            menu.setHeaderTitle(Converter.getDurationStringLong(Timeline.getTimecodeLinkTime(selectedUrl)));
+        } else {
             Uri uri = Uri.parse(selectedUrl);
             final Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             if (IntentUtils.isCallable(getContext(), intent)) {
@@ -157,7 +169,7 @@ public class ShownotesWebView extends WebView implements View.OnLongClickListene
             menu.add(Menu.NONE, R.id.copy_url_item, Menu.NONE, R.string.copy_url_label);
             menu.add(Menu.NONE, R.id.share_url_item, Menu.NONE, R.string.share_url_label);
             menu.setHeaderTitle(selectedUrl);
-
+        }
     }
 
     public void setTimecodeSelectedListener(Consumer<Integer> timecodeSelectedListener) {

@@ -37,7 +37,7 @@ public class FeedMultiSelectActionHandler {
 
     public void handleAction(int id) {
         if (id == R.id.remove_item) {
-            //RemoveFeedDialog.show(activity, selectedItems);
+            RemoveFeedDialog.show(activity, selectedItems);
         } else if (id == R.id.keep_updated) {
             keepUpdatedPrefHandler();
         } else if (id == R.id.autodownload) {
@@ -54,7 +54,7 @@ public class FeedMultiSelectActionHandler {
     }
 
     private void autoDownloadPrefHandler() {
-      /*  PreferenceSwitchDialog preferenceSwitchDialog = new PreferenceSwitchDialog(activity,
+        PreferenceSwitchDialog preferenceSwitchDialog = new PreferenceSwitchDialog(activity,
                 activity.getString(R.string.auto_download_settings_label),
                 activity.getString(R.string.auto_download_label));
         preferenceSwitchDialog.setOnPreferenceChangedListener(new PreferenceSwitchDialog.OnPreferenceChangedListener() {
@@ -63,14 +63,14 @@ public class FeedMultiSelectActionHandler {
                 saveFeedPreferences(feedPreferences -> feedPreferences.setAutoDownload(enabled));
             }
         });
-        preferenceSwitchDialog.openDialog();*/
+        preferenceSwitchDialog.openDialog();
     }
 
     private static final DecimalFormat SPEED_FORMAT =
             new DecimalFormat("0.00", DecimalFormatSymbols.getInstance(Locale.US));
 
     private void playbackSpeedPrefHandler() {
-        /*PlaybackSpeedFeedSettingDialogBinding viewBinding =
+        PlaybackSpeedFeedSettingDialogBinding viewBinding =
                 PlaybackSpeedFeedSettingDialogBinding.inflate(activity.getLayoutInflater());
         viewBinding.seekBar.setProgressChangedListener(speed ->
                 viewBinding.currentSpeedLabel.setText(String.format(Locale.getDefault(), "%.2fx", speed)));
@@ -89,11 +89,11 @@ public class FeedMultiSelectActionHandler {
                     saveFeedPreferences(feedPreferences -> feedPreferences.setFeedPlaybackSpeed(newSpeed));
                 })
                 .setNegativeButton(R.string.cancel_label, null)
-                .show();*/
+                .show();
     }
 
     private void autoDeleteEpisodesPrefHandler() {
-        /*PreferenceListDialog preferenceListDialog = new PreferenceListDialog(activity,
+        PreferenceListDialog preferenceListDialog = new PreferenceListDialog(activity,
                 "Auto delete episodes");
         String[] items = activity.getResources().getStringArray(R.array.spnAutoDeleteItems);
         String[] values = activity.getResources().getStringArray(R.array.spnAutoDeleteValues);
@@ -116,11 +116,11 @@ public class FeedMultiSelectActionHandler {
             saveFeedPreferences(feedPreferences -> {
                 feedPreferences.setAutoDeleteAction(finalAutoDeleteAction);
             });
-        });*/
+        });
     }
 
     private void keepUpdatedPrefHandler() {
-        /*PreferenceSwitchDialog preferenceSwitchDialog = new PreferenceSwitchDialog(activity,
+        PreferenceSwitchDialog preferenceSwitchDialog = new PreferenceSwitchDialog(activity,
                 activity.getString(R.string.kept_updated),
                 activity.getString(R.string.keep_updated_summary));
         preferenceSwitchDialog.setOnPreferenceChangedListener(keepUpdated -> {
@@ -128,12 +128,12 @@ public class FeedMultiSelectActionHandler {
                 feedPreferences.setKeepUpdated(keepUpdated);
             });
         });
-        preferenceSwitchDialog.openDialog();*/
+        preferenceSwitchDialog.openDialog();
     }
 
     private void showMessage(@PluralsRes int msgId, int numItems) {
-        /*activity.showSnackbarAbovePlayer(activity.getResources()
-                .getQuantityString(msgId, numItems, numItems), Snackbar.LENGTH_LONG);*/
+        activity.showSnackbarAbovePlayer(activity.getResources()
+                .getQuantityString(msgId, numItems, numItems), Snackbar.LENGTH_LONG);
     }
 
     private void saveFeedPreferences(Consumer<FeedPreferences> preferencesConsumer) {
@@ -145,11 +145,11 @@ public class FeedMultiSelectActionHandler {
     }
 
     private void editFeedPrefTags() {
-        /*ArrayList<FeedPreferences> preferencesList = new ArrayList<>();
+        ArrayList<FeedPreferences> preferencesList = new ArrayList<>();
         for (Feed feed : selectedItems) {
             preferencesList.add(feed.getPreferences());
         }
         TagSettingsDialog.newInstance(preferencesList).show(activity.getSupportFragmentManager(),
-                TagSettingsDialog.TAG);*/
+                TagSettingsDialog.TAG);
     }
 }

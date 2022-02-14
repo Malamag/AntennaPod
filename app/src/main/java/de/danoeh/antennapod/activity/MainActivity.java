@@ -37,7 +37,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.snackbar.Snackbar;
 
-//import de.danoeh.antennapod.playback.cast.CastEnabledActivity;
+import de.danoeh.antennapod.playback.cast.CastEnabledActivity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.Validate;
 import org.greenrobot.eventbus.EventBus;
@@ -48,7 +48,7 @@ import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.event.MessageEvent;
 import de.danoeh.antennapod.core.preferences.UserPreferences;
 import de.danoeh.antennapod.core.receiver.MediaButtonReceiver;
-
+import de.danoeh.antennapod.core.service.playback.PlaybackService;
 import de.danoeh.antennapod.core.util.StorageUtils;
 import de.danoeh.antennapod.core.util.download.AutoUpdateManager;
 import de.danoeh.antennapod.dialog.RatingDialog;
@@ -71,7 +71,7 @@ import de.danoeh.antennapod.view.LockableBottomSheetBehavior;
 /**
  * The activity that is shown when the user launches the app.
  */
-public class MainActivity /*extends CastEnabledActivity*/ {
+public class MainActivity extends CastEnabledActivity {
 
     private static final String TAG = "MainActivity";
     public static final String MAIN_FRAGMENT_TAG = "main";
@@ -102,7 +102,7 @@ public class MainActivity /*extends CastEnabledActivity*/ {
         return intent;
     }
 
-    /*@Override
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         lastTheme = UserPreferences.getNoTitleTheme();
         setTheme(lastTheme);
@@ -149,7 +149,7 @@ public class MainActivity /*extends CastEnabledActivity*/ {
         sheetBehavior.setPeekHeight((int) getResources().getDimension(R.dimen.external_player_height));
         sheetBehavior.setHideable(false);
         sheetBehavior.setBottomSheetCallback(bottomSheetCallback);
-    }*/
+    }
 
     /**
      * View.generateViewId stores the current ID in a static variable.
@@ -164,13 +164,13 @@ public class MainActivity /*extends CastEnabledActivity*/ {
         }
     }
 
-    /*@Override
+    @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_GENERATED_VIEW_ID, View.generateViewId());
-    }*/
+    }
 
-    /*private final BottomSheetBehavior.BottomSheetCallback bottomSheetCallback =
+    private final BottomSheetBehavior.BottomSheetCallback bottomSheetCallback =
             new BottomSheetBehavior.BottomSheetCallback() {
         @Override
         public void onStateChanged(@NonNull View view, int state) {
@@ -198,29 +198,29 @@ public class MainActivity /*extends CastEnabledActivity*/ {
             audioPlayer.getExternalPlayerHolder().setVisibility(
                     condensedSlideOffset > 0.99f ? View.GONE : View.VISIBLE);
         }
-    };*/
+    };
 
     public void setupToolbarToggle(@NonNull Toolbar toolbar, boolean displayUpArrow) {
         if (drawerLayout != null) { // Tablet layout does not have a drawer
             if (drawerToggle != null) {
                 drawerLayout.removeDrawerListener(drawerToggle);
             }
-            //drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
-            //        R.string.drawer_open, R.string.drawer_close);
+            drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
+                    R.string.drawer_open, R.string.drawer_close);
             drawerLayout.addDrawerListener(drawerToggle);
             drawerToggle.syncState();
             drawerToggle.setDrawerIndicatorEnabled(!displayUpArrow);
-            //drawerToggle.setToolbarNavigationClickListener(v -> getSupportFragmentManager().popBackStack());
+            drawerToggle.setToolbarNavigationClickListener(v -> getSupportFragmentManager().popBackStack());
         } else if (!displayUpArrow) {
             toolbar.setNavigationIcon(null);
         } else {
-            //toolbar.setNavigationIcon(ThemeUtils.getDrawableFromAttr(this, R.attr.homeAsUpIndicator));
-            //toolbar.setNavigationOnClickListener(v -> getSupportFragmentManager().popBackStack());
+            toolbar.setNavigationIcon(ThemeUtils.getDrawableFromAttr(this, R.attr.homeAsUpIndicator));
+            toolbar.setNavigationOnClickListener(v -> getSupportFragmentManager().popBackStack());
         }
     }
 
     private void checkFirstLaunch() {
-        /*SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         if (prefs.getBoolean(PREF_IS_FIRST_LAUNCH, true)) {
             loadFragment(AddFeedFragment.TAG, null);
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -235,7 +235,7 @@ public class MainActivity /*extends CastEnabledActivity*/ {
             SharedPreferences.Editor edit = prefs.edit();
             edit.putBoolean(PREF_IS_FIRST_LAUNCH, false);
             edit.apply();
-        }*/
+        }
     }
 
     public boolean isDrawerOpen() {
@@ -248,11 +248,11 @@ public class MainActivity /*extends CastEnabledActivity*/ {
 
     public void setPlayerVisible(boolean visible) {
         getBottomSheet().setLocked(!visible);
-        //FrameLayout mainView = findViewById(R.id.main_view);
-        //ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mainView.getLayoutParams();
-        //params.setMargins(0, 0, 0, visible ? (int) getResources().getDimension(R.dimen.external_player_height) : 0);
-        //mainView.setLayoutParams(params);
-        //findViewById(R.id.audioplayerFragment).setVisibility(visible ? View.VISIBLE : View.GONE);
+        FrameLayout mainView = findViewById(R.id.main_view);
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) mainView.getLayoutParams();
+        params.setMargins(0, 0, 0, visible ? (int) getResources().getDimension(R.dimen.external_player_height) : 0);
+        mainView.setLayoutParams(params);
+        findViewById(R.id.audioplayerFragment).setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
     public RecyclerView.RecycledViewPool getRecycledViewPool() {
@@ -292,7 +292,7 @@ public class MainActivity /*extends CastEnabledActivity*/ {
         if (args != null) {
             fragment.setArguments(args);
         }
-        //NavDrawerFragment.saveLastNavFragment(this, tag);
+        NavDrawerFragment.saveLastNavFragment(this, tag);
         loadFragment(fragment);
     }
 
@@ -301,12 +301,12 @@ public class MainActivity /*extends CastEnabledActivity*/ {
         if (args != null) {
             fragment.setArguments(args);
         }
-        //NavDrawerFragment.saveLastNavFragment(this, String.valueOf(feedId));
+        NavDrawerFragment.saveLastNavFragment(this, String.valueOf(feedId));
         loadFragment(fragment);
     }
 
     private void loadFragment(Fragment fragment) {
-        /*FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentManager fragmentManager = getSupportFragmentManager();
         // clear back stack
         for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
             fragmentManager.popBackStack();
@@ -324,11 +324,11 @@ public class MainActivity /*extends CastEnabledActivity*/ {
 
         if (drawerLayout != null) { // Tablet layout does not have a drawer
             drawerLayout.closeDrawer(navDrawer);
-        }*/
+        }
     }
 
     public void loadChildFragment(Fragment fragment, TransitionEffect transition) {
-        /*Validate.notNull(fragment);
+        Validate.notNull(fragment);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
         switch (transition) {
@@ -348,14 +348,14 @@ public class MainActivity /*extends CastEnabledActivity*/ {
                 .hide(getSupportFragmentManager().findFragmentByTag(MAIN_FRAGMENT_TAG))
                 .add(R.id.main_view, fragment, MAIN_FRAGMENT_TAG)
                 .addToBackStack(null)
-                .commit();*/
+                .commit();
     }
 
     public void loadChildFragment(Fragment fragment) {
         loadChildFragment(fragment, TransitionEffect.NONE);
     }
 
-    /*@Override
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         if (drawerToggle != null) { // Tablet layout does not have a drawer
@@ -370,26 +370,26 @@ public class MainActivity /*extends CastEnabledActivity*/ {
             drawerToggle.onConfigurationChanged(newConfig);
         }
         setNavDrawerSize();
-    }*/
+    }
 
     private void setNavDrawerSize() {
-        /*if (drawerToggle == null) { // Tablet layout does not have a drawer
+        if (drawerToggle == null) { // Tablet layout does not have a drawer
             return;
         }
         float screenPercent = getResources().getInteger(R.integer.nav_drawer_screen_size_percent) * 0.01f;
         int width = (int) (getScreenWidth() * screenPercent);
         int maxWidth = (int) getResources().getDimension(R.dimen.nav_drawer_max_screen_size);
 
-        navDrawer.getLayoutParams().width = Math.min(width, maxWidth);*/
+        navDrawer.getLayoutParams().width = Math.min(width, maxWidth);
     }
 
     private int getScreenWidth() {
         DisplayMetrics displayMetrics = new DisplayMetrics();
-        //getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics.widthPixels;
     }
 
-    /*@Override
+    @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
@@ -492,20 +492,20 @@ public class MainActivity /*extends CastEnabledActivity*/ {
                 default: super.onBackPressed();
             }
         }
-    }*/
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(MessageEvent event) {
         Log.d(TAG, "onEvent(" + event + ")");
 
-        //Snackbar snackbar = showSnackbarAbovePlayer(event.message, Snackbar.LENGTH_SHORT);
+        Snackbar snackbar = showSnackbarAbovePlayer(event.message, Snackbar.LENGTH_SHORT);
         if (event.action != null) {
-            //snackbar.setAction(getString(R.string.undo), v -> event.action.run());
+            snackbar.setAction(getString(R.string.undo), v -> event.action.run());
         }
     }
 
     private void handleNavIntent() {
-        /*Intent intent = getIntent();
+        Intent intent = getIntent();
         if (intent.hasExtra(EXTRA_FEED_ID) || intent.hasExtra(EXTRA_FRAGMENT_TAG) || intent.hasExtra(EXTRA_REFRESH_ON_START)) {
             Log.d(TAG, "handleNavIntent()");
             String tag = intent.getStringExtra(EXTRA_FRAGMENT_TAG);
@@ -531,12 +531,12 @@ public class MainActivity /*extends CastEnabledActivity*/ {
             bottomSheetCallback.onSlide(null, 1.0f);
         } else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
             handleDeeplink(intent.getData());
-        }*/
+        }
         // to avoid handling the intent twice when the configuration changes
-        //setIntent(new Intent(MainActivity.this, MainActivity.class));
+        setIntent(new Intent(MainActivity.this, MainActivity.class));
     }
 
-    /*@Override
+    @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
@@ -559,7 +559,7 @@ public class MainActivity /*extends CastEnabledActivity*/ {
 
     public Snackbar showSnackbarAbovePlayer(int text, int duration) {
         return showSnackbarAbovePlayer(getResources().getText(text), duration);
-    }*/
+    }
 
     /**
      * Handles the deep link incoming via App Actions.
@@ -604,8 +604,8 @@ public class MainActivity /*extends CastEnabledActivity*/ {
                         loadFragment(SubscriptionFragment.TAG, null);
                         break;
                     default:
-                       // showSnackbarAbovePlayer(getString(R.string.app_action_not_found, feature),
-                               // Snackbar.LENGTH_LONG);
+                        showSnackbarAbovePlayer(getString(R.string.app_action_not_found, feature),
+                                Snackbar.LENGTH_LONG);
                         return;
                 }
                 break;
@@ -615,7 +615,7 @@ public class MainActivity /*extends CastEnabledActivity*/ {
     }
   
     //Hardware keyboard support
-    /*@Override
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         View currentFocus = getCurrentFocus();
         if (currentFocus instanceof EditText) {
@@ -666,5 +666,5 @@ public class MainActivity /*extends CastEnabledActivity*/ {
             return true;
         }
         return super.onKeyUp(keyCode, event);
-    }*/
+    }
 }

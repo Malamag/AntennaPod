@@ -170,7 +170,7 @@ public class NavDrawerFragment extends Fragment implements SharedPreferences.OnS
             new RenameItemDialog(getActivity(), feed).show();
             return true;
         } else if (itemId == R.id.remove_item) {
-            //((MainActivity) getActivity()).loadFragment(EpisodesFragment.TAG, null);
+            ((MainActivity) getActivity()).loadFragment(EpisodesFragment.TAG, null);
             RemoveFeedDialog.show(getContext(), feed);
             return true;
         }
@@ -238,7 +238,7 @@ public class NavDrawerFragment extends Fragment implements SharedPreferences.OnS
         });
         builder.setPositiveButton(R.string.confirm_label, (dialog, which) -> {
             UserPreferences.setHiddenDrawerItems(hiddenDrawerItems);
-            //navAdapter.notifyDataSetChanged(); // Update selection
+            navAdapter.notifyDataSetChanged(); // Update selection
         });
         builder.setNegativeButton(R.string.cancel_label, null);
         builder.create().show();
@@ -320,17 +320,17 @@ public class NavDrawerFragment extends Fragment implements SharedPreferences.OnS
             if (viewType != NavListAdapter.VIEW_TYPE_SECTION_DIVIDER) {
                 if (position < navAdapter.getSubscriptionOffset()) {
                     String tag = navAdapter.getFragmentTags().get(position);
-                    //((MainActivity) getActivity()).loadFragment(tag, null);
-                    //((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
+                    ((MainActivity) getActivity()).loadFragment(tag, null);
+                    ((MainActivity) getActivity()).getBottomSheet().setState(BottomSheetBehavior.STATE_COLLAPSED);
                 } else {
                     int pos = position - navAdapter.getSubscriptionOffset();
                     NavDrawerData.DrawerItem clickedItem = flatItemList.get(pos);
 
                     if (clickedItem.type == NavDrawerData.DrawerItem.Type.FEED) {
                         long feedId = ((NavDrawerData.FeedDrawerItem) clickedItem).feed.getId();
-                        //((MainActivity) getActivity()).loadFeedFragmentById(feedId, null);
-                        //((MainActivity) getActivity()).getBottomSheet()
-                                //.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        ((MainActivity) getActivity()).loadFeedFragmentById(feedId, null);
+                        ((MainActivity) getActivity()).getBottomSheet()
+                                .setState(BottomSheetBehavior.STATE_COLLAPSED);
                     } else {
                         NavDrawerData.TagDrawerItem folder = ((NavDrawerData.TagDrawerItem) clickedItem);
                         if (openFolders.contains(folder.name)) {
@@ -350,7 +350,7 @@ public class NavDrawerFragment extends Fragment implements SharedPreferences.OnS
                                 .subscribe(
                                         result -> {
                                             flatItemList = result;
-                                            //navAdapter.notifyDataSetChanged();
+                                            navAdapter.notifyDataSetChanged();
                                         }, error -> Log.e(TAG, Log.getStackTraceString(error)));
                     }
                 }
@@ -389,7 +389,7 @@ public class NavDrawerFragment extends Fragment implements SharedPreferences.OnS
                         result -> {
                             navDrawerData = result.first;
                             flatItemList = result.second;
-                            //navAdapter.notifyDataSetChanged();
+                            navAdapter.notifyDataSetChanged();
                             progressBar.setVisibility(View.GONE); // Stays hidden once there is something in the list
                         }, error -> {
                             Log.e(TAG, Log.getStackTraceString(error));
@@ -435,7 +435,7 @@ public class NavDrawerFragment extends Fragment implements SharedPreferences.OnS
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (PREF_LAST_FRAGMENT_TAG.equals(key)) {
-            //navAdapter.notifyDataSetChanged(); // Update selection
+            navAdapter.notifyDataSetChanged(); // Update selection
         }
     }
 }

@@ -31,7 +31,7 @@ public class QueueRecyclerAdapter extends EpisodeItemListAdapter {
 
     public void updateDragDropEnabled() {
         dragDropEnabled = ! (UserPreferences.isQueueKeepSorted() || UserPreferences.isQueueLocked());
-        //notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 
     @Override
@@ -70,8 +70,8 @@ public class QueueRecyclerAdapter extends EpisodeItemListAdapter {
 
     @Override
     public void onCreateContextMenu(final ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        //MenuInflater inflater = getActivity().getMenuInflater();
-        //inflater.inflate(R.menu.queue_context, menu);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.queue_context, menu);
         super.onCreateContextMenu(menu, v, menuInfo);
 
         if (!inActionMode()) {

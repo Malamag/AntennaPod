@@ -313,7 +313,7 @@ public class FeedItem extends FeedComponent implements Serializable {
         if (imageUrl != null) {
             return imageUrl;
         } else if (media != null && media.hasEmbeddedPicture()) {
-            return null;
+            return FeedMedia.FILENAME_PREFIX_EMBEDDED_COVER + media.getLocalMediaUrl();
         } else if (feed != null) {
             return feed.getImageUrl();
         } else {

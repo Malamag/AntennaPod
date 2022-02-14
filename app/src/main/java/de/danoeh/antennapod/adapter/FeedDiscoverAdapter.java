@@ -49,7 +49,7 @@ public class FeedDiscoverAdapter extends BaseAdapter {
         Holder holder;
 
         if (convertView == null) {
-            //convertView = View.inflate(mainActivityRef.get(), R.layout.quick_feed_discovery_item, null);
+            convertView = View.inflate(mainActivityRef.get(), R.layout.quick_feed_discovery_item, null);
             holder = new Holder();
             holder.imageView = convertView.findViewById(R.id.discovery_cover);
             convertView.setTag(holder);
@@ -61,13 +61,13 @@ public class FeedDiscoverAdapter extends BaseAdapter {
         final PodcastSearchResult podcast = getItem(position);
         holder.imageView.setContentDescription(podcast.title);
 
-        /*Glide.with(mainActivityRef.get())
+        Glide.with(mainActivityRef.get())
                 .load(podcast.imageUrl)
                 .apply(new RequestOptions()
                         .placeholder(R.color.light_gray)
                         .fitCenter()
                         .dontAnimate())
-                .into(holder.imageView);*/
+                .into(holder.imageView);
 
         return convertView;
     }

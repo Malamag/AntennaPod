@@ -54,13 +54,13 @@ public class EpisodeMultiSelectActionHandler {
                 toQueue.add(episode.getId());
             }
         }
-        //DBWriter.addQueueItem(activity, true, toQueue.toArray());
+        DBWriter.addQueueItem(activity, true, toQueue.toArray());
         showMessage(R.plurals.added_to_queue_batch_label, toQueue.size());
     }
 
     private void removeFromQueueChecked() {
         long[] checkedIds = getSelectedIds();
-        //DBWriter.removeQueueItem(activity, true, checkedIds);
+        DBWriter.removeQueueItem(activity, true, checkedIds);
         showMessage(R.plurals.removed_from_queue_batch_label, checkedIds.length);
     }
 
@@ -84,7 +84,7 @@ public class EpisodeMultiSelectActionHandler {
                 requests.add(DownloadRequestCreator.create(episode.getMedia()).build());
             }
         }
-        //DownloadService.download(activity, true, requests.toArray(new DownloadRequest[0]));
+        DownloadService.download(activity, true, requests.toArray(new DownloadRequest[0]));
         showMessage(R.plurals.downloading_batch_label, requests.size());
     }
 
@@ -93,15 +93,15 @@ public class EpisodeMultiSelectActionHandler {
         for (FeedItem feedItem : selectedItems) {
             if (feedItem.hasMedia() && feedItem.getMedia().isDownloaded()) {
                 countHasMedia++;
-                //DBWriter.deleteFeedMediaOfItem(activity, feedItem.getMedia().getId());
+                DBWriter.deleteFeedMediaOfItem(activity, feedItem.getMedia().getId());
             }
         }
         showMessage(R.plurals.deleted_multi_episode_batch_label, countHasMedia);
     }
 
     private void showMessage(@PluralsRes int msgId, int numItems) {
-        //activity.showSnackbarAbovePlayer(activity.getResources()
-                //.getQuantityString(msgId, numItems, numItems), Snackbar.LENGTH_LONG);
+        activity.showSnackbarAbovePlayer(activity.getResources()
+                .getQuantityString(msgId, numItems, numItems), Snackbar.LENGTH_LONG);
     }
 
     private long[] getSelectedIds() {

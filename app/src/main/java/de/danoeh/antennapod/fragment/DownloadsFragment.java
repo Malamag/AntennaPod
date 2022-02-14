@@ -52,7 +52,7 @@ public class DownloadsFragment extends PagedToolbarFragment {
         if (savedInstanceState != null) {
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
-        //((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
+        ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
 
         viewPager = root.findViewById(R.id.viewpager);
         viewPager.setAdapter(new DownloadsPagerAdapter(this));

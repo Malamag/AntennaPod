@@ -7,9 +7,8 @@ include ':net:ssl'
 include ':net:sync:gpoddernet'
 include ':net:sync:model'
 
-include ':parser:feed'
-include ':parser:media'
-
+include ':playback:base'
+include ':playback:cast'
 
 include ':ui:app-start-intent'
 include ':ui:common'

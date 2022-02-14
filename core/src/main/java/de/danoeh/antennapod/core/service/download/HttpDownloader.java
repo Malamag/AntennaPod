@@ -23,7 +23,6 @@ import java.util.Date;
 
 import de.danoeh.antennapod.core.R;
 import de.danoeh.antennapod.model.feed.FeedMedia;
-import de.danoeh.antennapod.parser.feed.util.DateUtils;
 import de.danoeh.antennapod.core.util.DownloadError;
 import de.danoeh.antennapod.core.util.StorageUtils;
 import de.danoeh.antennapod.core.util.URIUtil;
@@ -74,7 +73,7 @@ public class HttpDownloader extends Downloader {
 
             if (!TextUtils.isEmpty(request.getLastModified())) {
                 String lastModified = request.getLastModified();
-                Date lastModifiedDate = DateUtils.parse(lastModified);
+                Date lastModifiedDate = new Date();
                 if (lastModifiedDate != null) {
                     long threeDaysAgo = System.currentTimeMillis() - 1000 * 60 * 60 * 24 * 3;
                     if (lastModifiedDate.getTime() > threeDaysAgo) {

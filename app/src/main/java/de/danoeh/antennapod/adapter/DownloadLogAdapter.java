@@ -141,8 +141,8 @@ public class DownloadLogAdapter extends BaseAdapter {
                             return;
                         }
                         DownloadService.download(context, true, DownloadRequestCreator.create(media).build());
-                        /*((MainActivity) context).showSnackbarAbovePlayer(
-                                R.string.status_downloading_label, Toast.LENGTH_SHORT);*/
+                        ((MainActivity) context).showSnackbarAbovePlayer(
+                                R.string.status_downloading_label, Toast.LENGTH_SHORT);
                     });
                 }
             }

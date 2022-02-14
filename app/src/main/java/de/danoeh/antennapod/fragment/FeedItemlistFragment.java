@@ -53,6 +53,7 @@ import de.danoeh.antennapod.core.event.DownloaderUpdate;
 import de.danoeh.antennapod.event.FavoritesEvent;
 import de.danoeh.antennapod.event.FeedItemEvent;
 import de.danoeh.antennapod.event.FeedListUpdateEvent;
+import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.QueueEvent;
 import de.danoeh.antennapod.event.UnreadItemsUpdateEvent;
@@ -159,11 +160,11 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
         if (savedInstanceState != null) {
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
-        //((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
+        ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
         refreshToolbarState();
 
         recyclerView = root.findViewById(R.id.recyclerView);
-        //recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
+        recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
 
         progressBar = root.findViewById(R.id.progLoading);
         progressBar.setVisibility(View.VISIBLE);
@@ -237,16 +238,16 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
             @Override
             public void onToggleChanged(boolean open) {
                 if (open && adapter.getSelectedCount() == 0) {
-                    //((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.no_items_selected,
-                            //Snackbar.LENGTH_SHORT);
+                    ((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.no_items_selected,
+                            Snackbar.LENGTH_SHORT);
                     speedDialView.close();
                 }
             }
         });
         speedDialView.setOnActionSelectedListener(actionItem -> {
-            //new EpisodeMultiSelectActionHandler(((MainActivity) getActivity()), adapter.getSelectedItems())
-                    //.handleAction(actionItem.getId());
-            //adapter.endSelectMode();
+            new EpisodeMultiSelectActionHandler(((MainActivity) getActivity()), adapter.getSelectedItems())
+                    .handleAction(actionItem.getId());
+            adapter.endSelectMode();
             return true;
         });
         return root;
@@ -297,8 +298,8 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         if (feed == null) {
-            //((MainActivity) getActivity()).showSnackbarAbovePlayer(
-                    //R.string.please_wait_for_data, Toast.LENGTH_LONG);
+            ((MainActivity) getActivity()).showSnackbarAbovePlayer(
+                    R.string.please_wait_for_data, Toast.LENGTH_LONG);
             return true;
         }
         boolean feedMenuHandled = FeedMenuHandler.onOptionsItemClicked(getActivity(), item, feed);
@@ -310,11 +311,11 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
             new RenameItemDialog(getActivity(), feed).show();
             return true;
         } else if (itemId == R.id.remove_item) {
-            //((MainActivity) getActivity()).loadFragment(EpisodesFragment.TAG, null);
+            ((MainActivity) getActivity()).loadFragment(EpisodesFragment.TAG, null);
             RemoveFeedDialog.show(getContext(), feed);
             return true;
         } else if (itemId == R.id.action_search) {
-            //((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance(feed.getId(), feed.getTitle()));
+            ((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance(feed.getId(), feed.getTitle()));
             return true;
         }
         return false;
@@ -338,9 +339,9 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
         if (adapter == null) {
             return;
         }
-        //MainActivity activity = (MainActivity) getActivity();
+        MainActivity activity = (MainActivity) getActivity();
         long[] ids = FeedItemUtil.getIds(feed.getItems());
-        //activity.loadChildFragment(ItemPagerFragment.newInstance(ids, position));
+        activity.loadChildFragment(ItemPagerFragment.newInstance(ids, position));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -388,7 +389,18 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
         }
     }
 
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(PlaybackPositionEvent event) {
+        if (adapter != null) {
+            for (int i = 0; i < adapter.getItemCount(); i++) {
+                EpisodeItemViewHolder holder = (EpisodeItemViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
+                if (holder != null && holder.isCurrentlyPlayingItem()) {
+                    holder.notifyPlaybackPositionUpdated(event);
+                    break;
+                }
+            }
+        }
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void favoritesChanged(FavoritesEvent event) {
@@ -457,7 +469,7 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
         }
         if (adapter == null) {
             recyclerView.setAdapter(null);
-            //adapter = new FeedItemListAdapter((MainActivity) getActivity());
+            adapter = new FeedItemListAdapter((MainActivity) getActivity());
             adapter.setOnSelectModeListener(this);
             recyclerView.setAdapter(adapter);
             swipeActions = new SwipeActions(this, TAG).attachTo(recyclerView);
@@ -532,7 +544,7 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
         butShowSettings.setOnClickListener(v -> {
             if (feed != null) {
                 FeedSettingsFragment fragment = FeedSettingsFragment.newInstance(feed);
-                //((MainActivity) getActivity()).loadChildFragment(fragment, TransitionEffect.SLIDE);
+                ((MainActivity) getActivity()).loadChildFragment(fragment, TransitionEffect.SLIDE);
             }
         });
         txtvFailure.setOnClickListener(v -> {
@@ -549,7 +561,7 @@ public class FeedItemlistFragment extends Fragment implements AdapterView.OnItem
     private void showFeedInfo() {
         if (feed != null) {
             FeedInfoFragment fragment = FeedInfoFragment.newInstance(feed);
-            //((MainActivity) getActivity()).loadChildFragment(fragment, TransitionEffect.SLIDE);
+            ((MainActivity) getActivity()).loadChildFragment(fragment, TransitionEffect.SLIDE);
         }
     }
 

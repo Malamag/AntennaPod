@@ -491,6 +491,7 @@ public class PodDBAdapter {
         values.put(KEY_DOWNLOADED, media.isDownloaded());
         values.put(KEY_FILE_URL, media.getFile_url());
         values.put(KEY_HAS_EMBEDDED_PICTURE, media.hasEmbeddedPicture());
+        values.put(KEY_LAST_PLAYED_TIME, media.getLastPlayedTime());
 
         if (media.getPlaybackCompletionDate() != null) {
             values.put(KEY_PLAYBACK_COMPLETION_DATE, media.getPlaybackCompletionDate().getTime());
@@ -515,6 +516,7 @@ public class PodDBAdapter {
             values.put(KEY_POSITION, media.getPosition());
             values.put(KEY_DURATION, media.getDuration());
             values.put(KEY_PLAYED_DURATION, media.getPlayedDuration());
+            values.put(KEY_LAST_PLAYED_TIME, media.getLastPlayedTime());
             db.update(TABLE_NAME_FEED_MEDIA, values, KEY_ID + "=?",
                     new String[]{String.valueOf(media.getId())});
         } else {

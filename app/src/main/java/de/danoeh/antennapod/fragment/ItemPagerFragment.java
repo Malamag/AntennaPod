@@ -162,7 +162,7 @@ public class ItemPagerFragment extends Fragment implements Toolbar.OnMenuItemCli
 
     private void openPodcast() {
         Fragment fragment = FeedItemlistFragment.newInstance(item.getFeedId());
-        //((MainActivity) getActivity()).loadChildFragment(fragment);
+        ((MainActivity) getActivity()).loadChildFragment(fragment);
     }
 
     private class ItemPagerAdapter extends FragmentStateAdapter {

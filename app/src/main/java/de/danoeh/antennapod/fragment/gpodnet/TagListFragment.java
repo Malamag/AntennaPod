@@ -28,7 +28,7 @@ public class TagListFragment extends ListFragment {
 
         getListView().setOnItemClickListener((parent, view1, position, id) -> {
             GpodnetTag tag = (GpodnetTag) getListAdapter().getItem(position);
-            //((MainActivity) getActivity()).loadChildFragment(TagFragment.newInstance(tag));
+            ((MainActivity) getActivity()).loadChildFragment(TagFragment.newInstance(tag));
         });
 
         startLoadTask();

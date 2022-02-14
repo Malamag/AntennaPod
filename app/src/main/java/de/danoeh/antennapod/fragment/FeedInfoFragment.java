@@ -99,7 +99,7 @@ public class FeedInfoFragment extends Fragment implements Toolbar.OnMenuItemClic
                 android.content.ClipboardManager cm = (android.content.ClipboardManager) getContext()
                         .getSystemService(Context.CLIPBOARD_SERVICE);
                 cm.setPrimaryClip(clipData);
-                //((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.copied_url_msg, Snackbar.LENGTH_SHORT);
+                ((MainActivity) getActivity()).showSnackbarAbovePlayer(R.string.copied_url_msg, Snackbar.LENGTH_SHORT);
             }
         }
     };
@@ -155,7 +155,7 @@ public class FeedInfoFragment extends Fragment implements Toolbar.OnMenuItemClic
 
         root.findViewById(R.id.btnvOpenStatistics).setOnClickListener(view -> {
             StatisticsFragment fragment = new StatisticsFragment();
-            //((MainActivity) getActivity()).loadChildFragment(fragment, TransitionEffect.SLIDE);
+            ((MainActivity) getActivity()).loadChildFragment(fragment, TransitionEffect.SLIDE);
         });
 
         return root;
@@ -274,8 +274,8 @@ public class FeedInfoFragment extends Fragment implements Toolbar.OnMenuItemClic
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         if (feed == null) {
-            //((MainActivity) getActivity()).showSnackbarAbovePlayer(
-                   // R.string.please_wait_for_data, Toast.LENGTH_LONG);
+            ((MainActivity) getActivity()).showSnackbarAbovePlayer(
+                    R.string.please_wait_for_data, Toast.LENGTH_LONG);
             return false;
         }
         boolean handled = FeedMenuHandler.onOptionsItemClicked(getContext(), item, feed);
@@ -310,7 +310,7 @@ public class FeedInfoFragment extends Fragment implements Toolbar.OnMenuItemClic
             return;
         }
 
-        /*Completable.fromAction(() -> {
+        Completable.fromAction(() -> {
             getActivity().getContentResolver()
                     .takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
             DocumentFile documentFile = DocumentFile.fromTreeUri(getContext(), uri);
@@ -326,7 +326,7 @@ public class FeedInfoFragment extends Fragment implements Toolbar.OnMenuItemClic
                         () -> ((MainActivity) getActivity())
                                 .showSnackbarAbovePlayer(android.R.string.ok, Snackbar.LENGTH_SHORT),
                         error -> ((MainActivity) getActivity())
-                                .showSnackbarAbovePlayer(error.getLocalizedMessage(), Snackbar.LENGTH_LONG));*/
+                                .showSnackbarAbovePlayer(error.getLocalizedMessage(), Snackbar.LENGTH_LONG));
     }
 
     private static class AddLocalFolder extends ActivityResultContracts.OpenDocumentTree {

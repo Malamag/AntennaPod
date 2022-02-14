@@ -36,10 +36,13 @@ import androidx.core.view.WindowCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import com.bumptech.glide.Glide;
 import de.danoeh.antennapod.R;
-
+import de.danoeh.antennapod.event.playback.BufferUpdateEvent;
+import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.PlayerErrorEvent;
-
+import de.danoeh.antennapod.event.playback.PlaybackServiceEvent;
+import de.danoeh.antennapod.event.playback.SleepTimerUpdatedEvent;
 import de.danoeh.antennapod.core.preferences.UserPreferences;
+import de.danoeh.antennapod.core.service.playback.PlaybackService;
 import de.danoeh.antennapod.core.storage.DBReader;
 import de.danoeh.antennapod.core.storage.DBWriter;
 import de.danoeh.antennapod.core.util.Converter;
@@ -49,6 +52,7 @@ import de.danoeh.antennapod.core.util.ShareUtils;
 import de.danoeh.antennapod.core.util.StorageUtils;
 import de.danoeh.antennapod.core.util.TimeSpeedConverter;
 import de.danoeh.antennapod.core.util.gui.PictureInPictureUtil;
+import de.danoeh.antennapod.core.util.playback.PlaybackController;
 import de.danoeh.antennapod.databinding.VideoplayerActivityBinding;
 import de.danoeh.antennapod.dialog.PlaybackControlsDialog;
 import de.danoeh.antennapod.dialog.ShareDialog;
@@ -56,8 +60,9 @@ import de.danoeh.antennapod.dialog.SkipPreferenceDialog;
 import de.danoeh.antennapod.dialog.SleepTimerDialog;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
-
-
+import de.danoeh.antennapod.model.playback.Playable;
+import de.danoeh.antennapod.playback.base.PlayerStatus;
+import de.danoeh.antennapod.playback.cast.CastEnabledActivity;
 import de.danoeh.antennapod.ui.appstartintent.MainActivityStarter;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -71,7 +76,7 @@ import org.greenrobot.eventbus.ThreadMode;
 /**
  * Activity for playing video files.
  */
-public class VideoplayerActivity /*extends CastEnabledActivity*/ implements SeekBar.OnSeekBarChangeListener {
+public class VideoplayerActivity extends CastEnabledActivity implements SeekBar.OnSeekBarChangeListener {
     private static final String TAG = "VideoplayerActivity";
 
     /**
@@ -83,13 +88,14 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
     private long lastScreenTap = 0;
     private Handler videoControlsHider = new Handler(Looper.getMainLooper());
     private VideoplayerActivityBinding viewBinding;
+    private PlaybackController controller;
     private boolean showTimeLeft = false;
     private boolean isFavorite = false;
     private Disposable disposable;
     private float prog;
 
     @SuppressLint("AppCompatMethod")
-    /*@Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN);
@@ -180,9 +186,9 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
     public void onLowMemory() {
         super.onLowMemory();
         Glide.get(this).clearMemory();
-    }*/
+    }
 
-    /*private PlaybackController newPlaybackController() {
+    private PlaybackController newPlaybackController() {
         return new PlaybackController(this) {
             @Override
             public void onPositionObserverUpdate() {
@@ -227,12 +233,41 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
                 }
             }
         };
-    }*/
+    }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    @SuppressWarnings("unused")
+    public void bufferUpdate(BufferUpdateEvent event) {
+        if (event.hasStarted()) {
+            viewBinding.progressBar.setVisibility(View.VISIBLE);
+        } else if (event.hasEnded()) {
+            viewBinding.progressBar.setVisibility(View.INVISIBLE);
+        } else {
+            viewBinding.sbPosition.setSecondaryProgress((int) (event.getProgress() * viewBinding.sbPosition.getMax()));
+        }
+    }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    @SuppressWarnings("unused")
+    public void sleepTimerUpdate(SleepTimerUpdatedEvent event) {
+        if (event.isCancelled() || event.wasJustEnabled()) {
+            supportInvalidateOptionsMenu();
+        }
+    }
 
     protected void loadMediaInfo() {
-
+        Log.d(TAG, "loadMediaInfo()");
+        if (controller == null || controller.getMedia() == null) {
+            return;
+        }
+        showTimeLeft = UserPreferences.shouldShowRemainingTime();
+        onPositionObserverUpdate();
+        checkFavorite();
+        Playable media = controller.getMedia();
+        if (media != null) {
+            getSupportActionBar().setSubtitle(media.getEpisodeTitle());
+            getSupportActionBar().setTitle(media.getFeedTitle());
+        }
     }
 
     protected void setupView() {
@@ -240,10 +275,21 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
         Log.d("timeleft", showTimeLeft ? "true" : "false");
         viewBinding.durationLabel.setOnClickListener(v -> {
             showTimeLeft = !showTimeLeft;
+            Playable media = controller.getMedia();
+            if (media == null) {
+                return;
+            }
 
-
-
-
+            TimeSpeedConverter converter = new TimeSpeedConverter(controller.getCurrentPlaybackSpeedMultiplier());
+            String length;
+            if (showTimeLeft) {
+                int remainingTime = converter.convert(media.getDuration() - media.getPosition());
+                length = "-" + Converter.getDurationStringLong(remainingTime);
+            } else {
+                int duration = converter.convert(media.getDuration());
+                length = Converter.getDurationStringLong(duration);
+            }
+            viewBinding.durationLabel.setText(length);
 
             UserPreferences.setShowRemainTimeSetting(showTimeLeft);
             Log.d("timeleft on click", showTimeLeft ? "true" : "false");
@@ -251,19 +297,19 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
 
         viewBinding.sbPosition.setOnSeekBarChangeListener(this);
         viewBinding.rewindButton.setOnClickListener(v -> onRewind());
-        /*viewBinding.rewindButton.setOnLongClickListener(v -> {
+        viewBinding.rewindButton.setOnLongClickListener(v -> {
             SkipPreferenceDialog.showSkipPreference(VideoplayerActivity.this,
                     SkipPreferenceDialog.SkipDirection.SKIP_REWIND, null);
             return true;
-        });*/
+        });
         viewBinding.playButton.setIsVideoScreen(true);
         viewBinding.playButton.setOnClickListener(v -> onPlayPause());
         viewBinding.fastForwardButton.setOnClickListener(v -> onFastForward());
-        /*viewBinding.fastForwardButton.setOnLongClickListener(v -> {
+        viewBinding.fastForwardButton.setOnLongClickListener(v -> {
             SkipPreferenceDialog.showSkipPreference(VideoplayerActivity.this,
                     SkipPreferenceDialog.SkipDirection.SKIP_FORWARD, null);
             return false;
-        });*/
+        });
         // To suppress touches directly below the slider
         viewBinding.bottomControlsContainer.setOnTouchListener((view, motionEvent) -> true);
         viewBinding.bottomControlsContainer.setFitsSystemWindows(true);
@@ -271,8 +317,8 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
         viewBinding.videoView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
 
         setupVideoControlsToggler();
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-        //        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         viewBinding.videoPlayerContainer.setOnTouchListener(onVideoviewTouched);
         viewBinding.videoPlayerContainer.getViewTreeObserver().addOnGlobalLayoutListener(() ->
@@ -283,7 +329,7 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
     private final Runnable hideVideoControls = () -> {
         if (videoControlsShowing) {
             Log.d(TAG, "Hiding video controls");
-            //getSupportActionBar().hide();
+            getSupportActionBar().hide();
             hideVideoControls(true);
             videoControlsShowing = false;
         }
@@ -293,9 +339,9 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
         if (event.getAction() != MotionEvent.ACTION_DOWN) {
             return false;
         }
-        /*if (PictureInPictureUtil.isInPictureInPictureMode(this)) {
+        if (PictureInPictureUtil.isInPictureInPictureMode(this)) {
             return true;
-        }*/
+        }
         videoControlsHider.removeCallbacks(hideVideoControls);
 
         if (System.currentTimeMillis() - lastScreenTap < 300) {
@@ -307,7 +353,7 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
                 showSkipAnimation(false);
             }
             if (videoControlsShowing) {
-                //getSupportActionBar().hide();
+                getSupportActionBar().hide();
                 hideVideoControls(false);
                 videoControlsShowing = false;
             }
@@ -366,30 +412,52 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
     }
 
     private void setupVideoAspectRatio() {
-
+        if (videoSurfaceCreated && controller != null) {
+            Pair<Integer, Integer> videoSize = controller.getVideoSize();
+            if (videoSize != null && videoSize.first > 0 && videoSize.second > 0) {
+                Log.d(TAG, "Width,height of video: " + videoSize.first + ", " + videoSize.second);
+                viewBinding.videoView.setVideoSize(videoSize.first, videoSize.second);
+            } else {
+                Log.e(TAG, "Could not determine video size");
+            }
+        }
     }
 
     private void toggleVideoControlsVisibility() {
         if (videoControlsShowing) {
-            //getSupportActionBar().hide();
+            getSupportActionBar().hide();
             hideVideoControls(true);
         } else {
-            //getSupportActionBar().show();
+            getSupportActionBar().show();
             showVideoControls();
         }
         videoControlsShowing = !videoControlsShowing;
     }
 
     void onRewind() {
-
+        if (controller == null) {
+            return;
+        }
+        int curr = controller.getPosition();
+        controller.seekTo(curr - UserPreferences.getRewindSecs() * 1000);
+        setupVideoControlsToggler();
     }
 
     void onPlayPause() {
-
+        if (controller == null) {
+            return;
+        }
+        controller.playPause();
+        setupVideoControlsToggler();
     }
 
     void onFastForward() {
-
+        if (controller == null) {
+            return;
+        }
+        int curr = controller.getPosition();
+        controller.seekTo(curr + UserPreferences.getFastForwardSecs() * 1000);
+        setupVideoControlsToggler();
     }
 
     private final SurfaceHolder.Callback surfaceHolderCallback = new SurfaceHolder.Callback() {
@@ -402,9 +470,9 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
         public void surfaceCreated(SurfaceHolder holder) {
             Log.d(TAG, "Videoview holder created");
             videoSurfaceCreated = true;
-            /*if (controller != null && controller.getStatus() == PlayerStatus.PLAYING) {
+            if (controller != null && controller.getStatus() == PlayerStatus.PLAYING) {
                 controller.setVideoSurface(holder);
-            }*/
+            }
             setupVideoAspectRatio();
         }
 
@@ -412,61 +480,80 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
         public void surfaceDestroyed(SurfaceHolder holder) {
             Log.d(TAG, "Videosurface was destroyed");
             videoSurfaceCreated = false;
-
+            if (controller != null && !destroyingDueToReload
+                    && UserPreferences.getVideoBackgroundBehavior()
+                    != UserPreferences.VideoBackgroundBehavior.CONTINUE_PLAYING) {
+                controller.notifyVideoSurfaceAbandoned();
+            }
         }
     };
 
     protected void onReloadNotification(int notificationCode) {
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && PictureInPictureUtil.isInPictureInPictureMode(this)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && PictureInPictureUtil.isInPictureInPictureMode(this)) {
             if (notificationCode == PlaybackService.EXTRA_CODE_AUDIO
                     || notificationCode == PlaybackService.EXTRA_CODE_CAST) {
-                //finish();
+                finish();
             }
             return;
-        }*/
-
+        }
+        if (notificationCode == PlaybackService.EXTRA_CODE_CAST) {
+            Log.d(TAG, "ReloadNotification received, switching to Castplayer now");
+            destroyingDueToReload = true;
+            finish();
+            new MainActivityStarter(this).withOpenPlayer().start();
+        }
     }
 
     private void showVideoControls() {
         viewBinding.bottomControlsContainer.setVisibility(View.VISIBLE);
         viewBinding.controlsContainer.setVisibility(View.VISIBLE);
-        /*final Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+        final Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_in);
         if (animation != null) {
             viewBinding.bottomControlsContainer.startAnimation(animation);
             viewBinding.controlsContainer.startAnimation(animation);
-        }*/
+        }
         viewBinding.videoView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
     }
 
     private void hideVideoControls(boolean showAnimation) {
         if (showAnimation) {
-            /*final Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+            final Animation animation = AnimationUtils.loadAnimation(this, R.anim.fade_out);
             if (animation != null) {
                 viewBinding.bottomControlsContainer.startAnimation(animation);
                 viewBinding.controlsContainer.startAnimation(animation);
-            }*/
+            }
         }
-        /*getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);*/
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
         viewBinding.bottomControlsContainer.setFitsSystemWindows(true);
 
         viewBinding.bottomControlsContainer.setVisibility(View.GONE);
         viewBinding.controlsContainer.setVisibility(View.GONE);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(PlaybackPositionEvent event) {
+        onPositionObserverUpdate();
+    }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onPlaybackServiceChanged(PlaybackServiceEvent event) {
+        if (event.action == PlaybackServiceEvent.Action.SERVICE_SHUT_DOWN) {
+            finish();
+        }
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMediaPlayerError(PlayerErrorEvent event) {
-        /*final AlertDialog.Builder errorDialog = new AlertDialog.Builder(VideoplayerActivity.this);
+        final AlertDialog.Builder errorDialog = new AlertDialog.Builder(VideoplayerActivity.this);
         errorDialog.setTitle(R.string.error_label);
         errorDialog.setMessage(event.getMessage());
         errorDialog.setNeutralButton(android.R.string.ok, (dialog, which) -> finish());
-        errorDialog.show();*/
+        errorDialog.show();
     }
 
-    /*@Override
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         requestCastButton(menu);
@@ -559,17 +646,42 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
             return false;
         }
         return true;
-    }*/
+    }
 
-    private static String getWebsiteLinkWithFallback() {
-
+    private static String getWebsiteLinkWithFallback(Playable media) {
+        if (media == null) {
+            return null;
+        } else if (StringUtils.isNotBlank(media.getWebsiteLink())) {
+            return media.getWebsiteLink();
+        } else if (media instanceof FeedMedia) {
+            return FeedItemUtil.getLinkWithFallback(((FeedMedia) media).getItem());
+        }
         return null;
     }
 
     void onPositionObserverUpdate() {
+        if (controller == null) {
+            return;
+        }
 
-
-
+        TimeSpeedConverter converter = new TimeSpeedConverter(controller.getCurrentPlaybackSpeedMultiplier());
+        int currentPosition = converter.convert(controller.getPosition());
+        int duration = converter.convert(controller.getDuration());
+        int remainingTime = converter.convert(
+                controller.getDuration() - controller.getPosition());
+        Log.d(TAG, "currentPosition " + Converter.getDurationStringLong(currentPosition));
+        if (currentPosition == PlaybackService.INVALID_TIME
+                || duration == PlaybackService.INVALID_TIME) {
+            Log.w(TAG, "Could not react to position observer update because of invalid time");
+            return;
+        }
+        viewBinding.positionLabel.setText(Converter.getDurationStringLong(currentPosition));
+        if (showTimeLeft) {
+            viewBinding.durationLabel.setText("-" + Converter.getDurationStringLong(remainingTime));
+        } else {
+            viewBinding.durationLabel.setText(Converter.getDurationStringLong(duration));
+        }
+        updateProgressbarPosition(currentPosition, duration);
     }
 
     private void updateProgressbarPosition(int position, int duration) {
@@ -580,7 +692,15 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+        if (controller == null) {
+            return;
+        }
+        if (fromUser) {
+            prog = progress / ((float) seekBar.getMax());
+            TimeSpeedConverter converter = new TimeSpeedConverter(controller.getCurrentPlaybackSpeedMultiplier());
+            int position = converter.convert((int) (prog * controller.getDuration()));
+            viewBinding.seekPositionLabel.setText(Converter.getDurationStringLong(position));
+        }
     }
 
     @Override
@@ -597,7 +717,9 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
+        if (controller != null) {
+            controller.seekTo((int) (prog * controller.getDuration()));
+        }
         viewBinding.seekCardView.setScaleX(1f);
         viewBinding.seekCardView.setScaleY(1f);
         viewBinding.seekCardView.animate()
@@ -609,27 +731,45 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
     }
 
     private void checkFavorite() {
-
-
+        FeedItem feedItem = getFeedItem(controller.getMedia());
+        if (feedItem == null) {
+            return;
+        }
+        if (disposable != null) {
+            disposable.dispose();
+        }
+        disposable = Observable.fromCallable(() -> DBReader.getFeedItem(feedItem.getId()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        item -> {
+                            boolean isFav = item.isTagged(FeedItem.TAG_FAVORITE);
+                            if (isFavorite != isFav) {
+                                isFavorite = isFav;
+                                invalidateOptionsMenu();
+                            }
+                        }, error -> Log.e(TAG, Log.getStackTraceString(error)));
     }
 
     @Nullable
-    private static FeedItem getFeedItem() {
-
+    private static FeedItem getFeedItem(@Nullable Playable playable) {
+        if (playable instanceof FeedMedia) {
+            return ((FeedMedia) playable).getItem();
+        } else {
             return null;
-
+        }
     }
 
     private void compatEnterPictureInPicture() {
-        /*if (PictureInPictureUtil.supportsPictureInPicture(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (PictureInPictureUtil.supportsPictureInPicture(this) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             getSupportActionBar().hide();
             hideVideoControls(false);
             enterPictureInPictureMode();
-        }*/
+        }
     }
 
     //Hardware keyboard support
-    /*@Override
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         View currentFocus = getCurrentFocus();
         if (currentFocus instanceof EditText) {
@@ -689,5 +829,5 @@ public class VideoplayerActivity /*extends CastEnabledActivity*/ implements Seek
             return true;
         }
         return super.onKeyUp(keyCode, event);
-    }*/
+    }
 }

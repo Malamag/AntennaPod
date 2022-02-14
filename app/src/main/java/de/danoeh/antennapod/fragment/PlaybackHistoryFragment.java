@@ -18,7 +18,8 @@ import de.danoeh.antennapod.adapter.EpisodeItemListAdapter;
 import de.danoeh.antennapod.core.event.DownloadEvent;
 import de.danoeh.antennapod.core.event.DownloaderUpdate;
 import de.danoeh.antennapod.event.FeedItemEvent;
-
+import de.danoeh.antennapod.event.playback.PlaybackHistoryEvent;
+import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.PlayerStatusEvent;
 import de.danoeh.antennapod.event.UnreadItemsUpdateEvent;
 import de.danoeh.antennapod.model.feed.FeedItem;
@@ -69,13 +70,13 @@ public class PlaybackHistoryFragment extends Fragment implements Toolbar.OnMenuI
         if (savedInstanceState != null) {
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
-        //((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
+        ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
         toolbar.inflateMenu(R.menu.playback_history);
         refreshToolbarState();
 
         recyclerView = root.findViewById(R.id.recyclerView);
-        //recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
-        //adapter = new PlaybackHistoryListAdapter((MainActivity) getActivity());
+        recyclerView.setRecycledViewPool(((MainActivity) getActivity()).getRecycledViewPool());
+        adapter = new PlaybackHistoryListAdapter((MainActivity) getActivity());
         recyclerView.setAdapter(adapter);
         progressBar = root.findViewById(R.id.progLoading);
 
@@ -143,7 +144,18 @@ public class PlaybackHistoryFragment extends Fragment implements Toolbar.OnMenuI
         }
     }
 
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(PlaybackPositionEvent event) {
+        if (adapter != null) {
+            for (int i = 0; i < adapter.getItemCount(); i++) {
+                EpisodeItemViewHolder holder = (EpisodeItemViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
+                if (holder != null && holder.isCurrentlyPlayingItem()) {
+                    holder.notifyPlaybackPositionUpdated(event);
+                    break;
+                }
+            }
+        }
+    }
 
     public void refreshToolbarState() {
         boolean hasHistory = playbackHistory != null && !playbackHistory.isEmpty();
@@ -186,7 +198,11 @@ public class PlaybackHistoryFragment extends Fragment implements Toolbar.OnMenuI
         }
     }
 
-
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onHistoryUpdated(PlaybackHistoryEvent event) {
+        loadItems();
+        refreshToolbarState();
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onPlayerStatusChanged(PlayerStatusEvent event) {
@@ -201,7 +217,7 @@ public class PlaybackHistoryFragment extends Fragment implements Toolbar.OnMenuI
     }
 
     private void onFragmentLoaded() {
-        //adapter.notifyDataSetChanged();
+        adapter.notifyDataSetChanged();
         refreshToolbarState();
     }
 

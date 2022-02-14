@@ -127,7 +127,7 @@ public class SubscriptionFragment extends Fragment
         if (savedInstanceState != null) {
             displayUpArrow = savedInstanceState.getBoolean(KEY_UP_ARROW);
         }
-        //((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
+        ((MainActivity) getActivity()).setupToolbarToggle(toolbar, displayUpArrow);
         toolbar.inflateMenu(R.menu.subscriptions);
         for (int i = 0; i < COLUMN_CHECKBOX_IDS.length; i++) {
             // Do this in Java to localize numbers
@@ -180,8 +180,8 @@ public class SubscriptionFragment extends Fragment
             }
         });
         speedDialView.setOnActionSelectedListener(actionItem -> {
-            //new FeedMultiSelectActionHandler((MainActivity) getActivity(), subscriptionAdapter.getSelectedItems())
-                    //.handleAction(actionItem.getId());
+            new FeedMultiSelectActionHandler((MainActivity) getActivity(), subscriptionAdapter.getSelectedItems())
+                    .handleAction(actionItem.getId());
             return true;
         });
 
@@ -227,7 +227,7 @@ public class SubscriptionFragment extends Fragment
             setColumnNumber(5);
             return true;
         } else if (itemId == R.id.action_search) {
-            //((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance());
+            ((MainActivity) getActivity()).loadChildFragment(SearchFragment.newInstance());
             return true;
         }
         return false;
@@ -236,7 +236,7 @@ public class SubscriptionFragment extends Fragment
     private void setColumnNumber(int columns) {
         GridLayoutManager gridLayoutManager = (GridLayoutManager) subscriptionRecycler.getLayoutManager();
         gridLayoutManager.setSpanCount(columns);
-        //subscriptionAdapter.notifyDataSetChanged();
+        subscriptionAdapter.notifyDataSetChanged();
         prefs.edit().putInt(PREF_NUM_COLUMNS, columns).apply();
         refreshToolbarState();
     }
@@ -252,14 +252,14 @@ public class SubscriptionFragment extends Fragment
     @Override
     public void onViewCreated(@NonNull View v, Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-        //subscriptionAdapter = new SubscriptionsRecyclerAdapter((MainActivity) getActivity());
+        subscriptionAdapter = new SubscriptionsRecyclerAdapter((MainActivity) getActivity());
         subscriptionAdapter.setOnSelectModeListener(this);
         subscriptionRecycler.setAdapter(subscriptionAdapter);
         setupEmptyView();
         subscriptionAddButton.setOnClickListener(view -> {
-           /* if (getActivity() instanceof MainActivity) {
+            if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).loadChildFragment(new AddFeedFragment());
-            }*/
+            }
         });
     }
 
@@ -310,7 +310,7 @@ public class SubscriptionFragment extends Fragment
                         }
                         listItems = result;
                         subscriptionAdapter.setItems(result);
-                        //subscriptionAdapter.notifyDataSetChanged();
+                        subscriptionAdapter.notifyDataSetChanged();
                         emptyView.updateVisibility();
                         progressBar.setVisibility(View.GONE); // Keep hidden to avoid flickering while refreshing
                     }, error -> {
@@ -409,7 +409,7 @@ public class SubscriptionFragment extends Fragment
         speedDialView.close();
         speedDialView.setVisibility(View.GONE);
         subscriptionAdapter.setItems(listItems);
-        //subscriptionAdapter.notifyDataSetChanged();
+        subscriptionAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -421,6 +421,6 @@ public class SubscriptionFragment extends Fragment
             }
         }
         subscriptionAdapter.setItems(feedsOnly);
-        //subscriptionAdapter.notifyDataSetChanged();
+        subscriptionAdapter.notifyDataSetChanged();
     }
 }

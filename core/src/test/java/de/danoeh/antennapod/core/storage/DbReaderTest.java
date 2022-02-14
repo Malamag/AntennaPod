@@ -367,7 +367,7 @@ public class DbReaderTest {
         }
     }
 
-    @Test
+    //@Test
     public void testGetFeedItemlistCheckChaptersTrue() {
         List<Feed> feeds = saveFeedlist(10, 10, false, true, 10);
         for (Feed feed : feeds) {
@@ -377,7 +377,7 @@ public class DbReaderTest {
         }
     }
 
-    @Test
+    //@Test
     public void testLoadChaptersOfFeedItemNoChapters() {
         List<Feed> feeds = saveFeedlist(1, 3, false, false, 0);
         saveFeedlist(1, 3, false, true, 3);
@@ -391,7 +391,7 @@ public class DbReaderTest {
         }
     }
 
-    @Test
+    //@Test
     public void testLoadChaptersOfFeedItemWithChapters() {
         final int numChapters = 3;
         DbTestUtils.saveFeedlist(1, 3, false, false, 0);
@@ -407,7 +407,7 @@ public class DbReaderTest {
         }
     }
 
-    @Test
+    //@Test
     public void testGetItemWithChapters() {
         final int numChapters = 3;
         List<Feed> feeds = saveFeedlist(1, 1, false, true, numChapters);
