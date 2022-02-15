@@ -160,12 +160,12 @@ public class LocalFeedUpdaterTest {
         Feed feedAfter = verifySingleFeedInDatabase();
         assertThat(feedAfter.getImageUrl(), startsWith(Feed.PREFIX_GENERATIVE_COVER));
     }
-//é
     /**
      * Test default feed metadata.
      *
      * @see #mapDummyMetadata Title and PubDate are dummy values.
      */
+    ///Test avec module parse
     //@Test
     public void testUpdateFeed_FeedMetadata() {
         callUpdateFeed(LOCAL_FEED_DIR1);
