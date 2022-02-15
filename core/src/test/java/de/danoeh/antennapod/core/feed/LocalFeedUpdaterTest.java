@@ -160,7 +160,7 @@ public class LocalFeedUpdaterTest {
         Feed feedAfter = verifySingleFeedInDatabase();
         assertThat(feedAfter.getImageUrl(), startsWith(Feed.PREFIX_GENERATIVE_COVER));
     }
-
+//é
     /**
      * Test default feed metadata.
      *
