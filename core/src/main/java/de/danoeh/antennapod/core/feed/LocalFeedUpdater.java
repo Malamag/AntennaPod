@@ -26,14 +26,14 @@ import de.danoeh.antennapod.core.service.download.DownloadStatus;
 import de.danoeh.antennapod.core.storage.DBReader;
 import de.danoeh.antennapod.core.storage.DBTasks;
 import de.danoeh.antennapod.core.storage.DBWriter;
-
+import de.danoeh.antennapod.parser.feed.util.DateUtils;
 import de.danoeh.antennapod.core.util.DownloadError;
 import de.danoeh.antennapod.model.feed.Feed;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.feed.FeedPreferences;
 import de.danoeh.antennapod.model.playback.MediaType;
-
+import de.danoeh.antennapod.parser.feed.util.MimeTypeUtils;
 
 public class LocalFeedUpdater {
 
@@ -74,7 +74,7 @@ public class LocalFeedUpdater {
         List<DocumentFile> mediaFiles = new ArrayList<>();
         Set<String> mediaFileNames = new HashSet<>();
         for (DocumentFile file : documentFolder.listFiles()) {
-            String mimeType = "";
+            String mimeType = MimeTypeUtils.getMimeType(file.getType(), file.getUri().toString());
             MediaType mediaType = MediaType.fromMimeType(mimeType);
             if (mediaType == MediaType.AUDIO || mediaType == MediaType.VIDEO) {
                 mediaFiles.add(file);
@@ -181,7 +181,7 @@ public class LocalFeedUpdater {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.getDefault());
                 item.setPubDate(simpleDateFormat.parse(dateStr));
             } catch (ParseException parseException) {
-                Date date = new Date();
+                Date date = DateUtils.parse(dateStr);
                 if (date != null) {
                     item.setPubDate(date);
                 }

@@ -97,7 +97,7 @@ public class LocalFeedUpdaterTest {
     /**
      * Test adding a new local feed.
      */
-    //@Test
+    @Test
     public void testUpdateFeed_AddNewFeed() {
         // check for empty database
         List<Feed> feedListBefore = DBReader.getFeedList();
@@ -114,7 +114,7 @@ public class LocalFeedUpdaterTest {
     /**
      * Test adding further items to an existing local feed.
      */
-    //@Test
+    @Test
     public void testUpdateFeed_AddMoreItems() {
         // add local feed with 1 item (localFeedDir1)
         callUpdateFeed(LOCAL_FEED_DIR1);
@@ -128,7 +128,7 @@ public class LocalFeedUpdaterTest {
     /**
      * Test removing items from an existing local feed without a corresponding media file.
      */
-    //@Test
+    @Test
     public void testUpdateFeed_RemoveItems() {
         // add local feed with 2 items (localFeedDir1)
         callUpdateFeed(LOCAL_FEED_DIR2);
@@ -160,13 +160,13 @@ public class LocalFeedUpdaterTest {
         Feed feedAfter = verifySingleFeedInDatabase();
         assertThat(feedAfter.getImageUrl(), startsWith(Feed.PREFIX_GENERATIVE_COVER));
     }
+
     /**
      * Test default feed metadata.
      *
      * @see #mapDummyMetadata Title and PubDate are dummy values.
      */
-    ///Test avec module parse
-    //@Test
+    @Test
     public void testUpdateFeed_FeedMetadata() {
         callUpdateFeed(LOCAL_FEED_DIR1);
 

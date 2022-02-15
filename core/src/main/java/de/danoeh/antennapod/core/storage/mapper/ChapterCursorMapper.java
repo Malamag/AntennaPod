@@ -3,9 +3,10 @@ package de.danoeh.antennapod.core.storage.mapper;
 import android.database.Cursor;
 import androidx.annotation.NonNull;
 import de.danoeh.antennapod.model.feed.Chapter;
-
+import de.danoeh.antennapod.parser.feed.element.SimpleChapter;
 import de.danoeh.antennapod.core.storage.PodDBAdapter;
-
+import de.danoeh.antennapod.parser.media.id3.ID3Chapter;
+import de.danoeh.antennapod.parser.media.vorbis.VorbisCommentChapter;
 
 /**
  * Converts a {@link Cursor} to a {@link Chapter} object.
@@ -32,11 +33,19 @@ public abstract class ChapterCursorMapper {
 
         Chapter chapter;
         switch (chapterType) {
-
+            case SimpleChapter.CHAPTERTYPE_SIMPLECHAPTER:
+                chapter = new SimpleChapter(start, title, link, imageUrl);
+                break;
+            case ID3Chapter.CHAPTERTYPE_ID3CHAPTER:
+                chapter = new ID3Chapter(start, title, link, imageUrl);
+                break;
+            case VorbisCommentChapter.CHAPTERTYPE_VORBISCOMMENT_CHAPTER:
+                chapter = new VorbisCommentChapter(start, title, link, imageUrl);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown chapter type");
         }
-
-
+        chapter.setId(id);
+        return chapter;
     }
 }

@@ -11,9 +11,11 @@ import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.core.service.download.AntennapodHttpClient;
 import de.danoeh.antennapod.core.storage.DBReader;
 import de.danoeh.antennapod.core.util.comparator.ChapterStartTimeComparator;
-
+import de.danoeh.antennapod.parser.media.id3.ChapterReader;
+import de.danoeh.antennapod.parser.media.id3.ID3ReaderException;
 import de.danoeh.antennapod.model.playback.Playable;
-
+import de.danoeh.antennapod.parser.media.vorbis.VorbisCommentChapterReader;
+import de.danoeh.antennapod.parser.media.vorbis.VorbisCommentReaderException;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.io.input.CountingInputStream;
@@ -82,7 +84,7 @@ public class ChapterUtils {
                 Log.i(TAG, "Chapters loaded");
                 return chapters;
             }
-        } catch (IOException  e) {
+        } catch (IOException | ID3ReaderException e) {
             Log.e(TAG, "Unable to load ID3 chapters: " + e.getMessage());
         }
 
@@ -92,7 +94,7 @@ public class ChapterUtils {
                 Log.i(TAG, "Chapters loaded");
                 return chapters;
             }
-        } catch (IOException  e) {
+        } catch (IOException | VorbisCommentReaderException e) {
             Log.e(TAG, "Unable to load vorbis chapters: " + e.getMessage());
         }
         return null;
@@ -122,9 +124,10 @@ public class ChapterUtils {
     }
 
     @NonNull
-    private static List<Chapter> readId3ChaptersFrom(CountingInputStream in) throws IOException {
-
-        List<Chapter> chapters = null;
+    private static List<Chapter> readId3ChaptersFrom(CountingInputStream in) throws IOException, ID3ReaderException {
+        ChapterReader reader = new ChapterReader(in);
+        reader.readInputStream();
+        List<Chapter> chapters = reader.getChapters();
         Collections.sort(chapters, new ChapterStartTimeComparator());
         enumerateEmptyChapterTitles(chapters);
         if (!chaptersValid(chapters)) {
@@ -135,9 +138,10 @@ public class ChapterUtils {
     }
 
     @NonNull
-    private static List<Chapter> readOggChaptersFromInputStream(InputStream input)  {
-
-        List<Chapter> chapters = null;
+    private static List<Chapter> readOggChaptersFromInputStream(InputStream input) throws VorbisCommentReaderException {
+        VorbisCommentChapterReader reader = new VorbisCommentChapterReader();
+        reader.readInputStream(input);
+        List<Chapter> chapters = reader.getChapters();
         if (chapters == null) {
             return Collections.emptyList();
         }
